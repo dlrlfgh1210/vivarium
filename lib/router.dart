@@ -5,11 +5,12 @@ import 'package:vivarium/home_screen.dart';
 import 'package:vivarium/more_screen.dart';
 import 'package:vivarium/my_screen.dart';
 import 'package:vivarium/navigation/main_navigation_screen.dart';
+import 'package:vivarium/post_screen.dart';
 import 'package:vivarium/search_screen.dart';
 
 final routerProvider = Provider((ref) {
   return GoRouter(
-    initialLocation: HomeScreen.routeURL,
+    initialLocation: PostScreen.routeURL,
     routes: [
       GoRoute(
         path: "/:tab(home|search|my|chat|more)",
@@ -43,6 +44,11 @@ final routerProvider = Provider((ref) {
         path: MoreScreen.routeURL,
         name: MoreScreen.routeName,
         builder: (context, state) => const MoreScreen(),
+      ),
+      GoRoute(
+        path: PostScreen.routeURL,
+        name: PostScreen.routeName,
+        builder: (context, state) => const PostScreen(),
       ),
     ],
   );
