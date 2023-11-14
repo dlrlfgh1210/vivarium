@@ -1,6 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:vivarium/post_category.dart';
+import 'package:vivarium/post/views/post_category.dart';
 
 class PostScreen extends StatefulWidget {
   static const routeName = "Post";

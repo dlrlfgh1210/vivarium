@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vivarium/post_screen.dart';
+import 'package:vivarium/post/views/post_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   static const routeName = "home";
