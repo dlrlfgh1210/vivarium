@@ -1,17 +1,59 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vivarium/home_screen.dart';
+import 'package:vivarium/post/view_models/create_post_view_model.dart';
 import 'package:vivarium/post/views/post_category.dart';
 
-class PostScreen extends StatefulWidget {
+class PostScreen extends ConsumerStatefulWidget {
   static const routeName = "Post";
   static const routeURL = "/Post";
   const PostScreen({super.key});
 
   @override
-  State<PostScreen> createState() => _PostScreenState();
+  ConsumerState<PostScreen> createState() => _PostScreenState();
 }
 
-class _PostScreenState extends State<PostScreen> {
+class _PostScreenState extends ConsumerState<PostScreen> {
+  int selectedCategoryIndex = 0;
+  late TextEditingController _postTitleController;
+  late TextEditingController _postContentController;
+  @override
+  void initState() {
+    super.initState();
+    _postTitleController = TextEditingController();
+    _postContentController = TextEditingController();
+  }
+
+  void onCategorySelected(int index) {
+    setState(() {
+      selectedCategoryIndex = index;
+    });
+  }
+
+  Future<void> _onPostTap() async {
+    String selectedCategory =
+        selectedCategoryIndex >= 0 ? pickedText[selectedCategoryIndex] : "";
+    ref.read(createPostProvider.notifier).createSoocho(
+          selectedCategory,
+          _postTitleController.text,
+          _postContentController.text,
+          context,
+        );
+    _postTitleController.clear();
+    _postContentController.clear();
+
+    context.pushReplacementNamed(HomeScreen.routeName);
+  }
+
+  @override
+  void dispose() {
+    _postTitleController.dispose();
+    _postContentController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,18 +61,21 @@ class _PostScreenState extends State<PostScreen> {
       appBar: AppBar(
         elevation: 10,
         centerTitle: true,
-        title: const Row(
+        title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 2,
             ),
-            Text("글쓰기"),
-            Text(
-              "완료",
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.w600,
+            const Text("글쓰기"),
+            GestureDetector(
+              onTap: _onPostTap,
+              child: const Text(
+                "완료",
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -44,7 +89,7 @@ class _PostScreenState extends State<PostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const PostCategory(),
+              PostCategory(onCategorySelected: onCategorySelected),
               SizedBox(
                 width: 500,
                 child: Divider(
@@ -69,12 +114,13 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                       height: 60,
                       width: MediaQuery.of(context).size.width,
-                      child: const TextField(
+                      child: TextField(
                         textInputAction: TextInputAction.done,
                         autofocus: false,
                         maxLines: null,
                         minLines: null,
-                        decoration: InputDecoration(
+                        controller: _postTitleController,
+                        decoration: const InputDecoration(
                           hintText: '제목(필수) - 30자 내외로 적어주세요',
                           border: InputBorder.none,
                         ),
@@ -100,12 +146,13 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                       height: 300,
                       width: MediaQuery.of(context).size.width,
-                      child: const TextField(
+                      child: TextField(
                         textInputAction: TextInputAction.done,
                         autofocus: false,
                         maxLines: null,
                         minLines: null,
-                        decoration: InputDecoration(
+                        controller: _postContentController,
+                        decoration: const InputDecoration(
                           hintText:
                               '본문(필수) \n-최소 1자~1000자 이내 작성할 수 있어요. \n-게시물이 다른 유저로부터 신고를 받거나 운영 \n정책에 맞지 않을 경우 숨김 처리 돼요.',
                           border: InputBorder.none,

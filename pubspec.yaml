@@ -45,6 +45,7 @@ dependencies:
   cloud_functions: ^4.5.3
   font_awesome_flutter: ^10.4.0
   dotted_border: ^2.1.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
