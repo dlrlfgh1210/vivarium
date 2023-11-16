@@ -1,58 +1,35 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:vivarium/home_screen.dart';
-import 'package:vivarium/post/view_models/create_post_view_model.dart';
-import 'package:vivarium/post/views/post_category.dart';
+import 'package:vivarium/post/views/update_post_category.dart';
 
-class PostScreen extends ConsumerStatefulWidget {
-  static const routeName = "Post";
-  static const routeURL = "/Post";
-  const PostScreen({super.key});
+class UpdatePostScreen extends ConsumerStatefulWidget {
+  static const routeName = "UpdatePost";
+  static const routeURL = "/UpdatePost";
+  final TextEditingController categoryController;
+  final TextEditingController titleController;
+  final TextEditingController contentController;
+  final String initialCategory;
+  final String initialTitle;
+  final String initialContent;
+  final String postId;
+  const UpdatePostScreen({
+    Key? key,
+    required this.categoryController,
+    required this.titleController,
+    required this.contentController,
+    required this.initialCategory,
+    required this.initialTitle,
+    required this.initialContent,
+    required this.postId,
+  }) : super(key: key);
 
   @override
-  ConsumerState<PostScreen> createState() => _PostScreenState();
+  ConsumerState<UpdatePostScreen> createState() => _UpdatePostScreenState();
 }
 
-class _PostScreenState extends ConsumerState<PostScreen> {
-  int selectedCategoryIndex = 0;
-  late TextEditingController _postTitleController;
-  late TextEditingController _postContentController;
-  @override
-  void initState() {
-    super.initState();
-    _postTitleController = TextEditingController();
-    _postContentController = TextEditingController();
-  }
-
-  void onCategorySelected(int index) {
-    setState(() {
-      selectedCategoryIndex = index;
-    });
-  }
-
-  Future<void> _onPostTap() async {
-    String selectedCategory =
-        selectedCategoryIndex >= 0 ? pickedText[selectedCategoryIndex] : "";
-    ref.read(createPostProvider.notifier).createSoocho(
-          selectedCategory,
-          _postTitleController.text,
-          _postContentController.text,
-          context,
-        );
-    _postTitleController.clear();
-    _postContentController.clear();
-
-    context.goNamed(HomeScreen.routeName);
-  }
-
-  @override
-  void dispose() {
-    _postTitleController.dispose();
-    _postContentController.dispose();
-    super.dispose();
-  }
+class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
+  void onCategoryEdited(int index) {}
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +44,19 @@ class _PostScreenState extends ConsumerState<PostScreen> {
             const SizedBox(
               width: 2,
             ),
-            const Text("글쓰기"),
+            const Text("수정하기"),
             GestureDetector(
-              onTap: _onPostTap,
+              onTap: () async {
+                final newCategory = widget.categoryController.text;
+                final newTitle = widget.titleController.text;
+                final newContent = widget.contentController.text;
+
+                Navigator.pop(context, {
+                  "newCategory": newCategory,
+                  "newTitle": newTitle,
+                  "newContent": newContent,
+                });
+              },
               child: const Text(
                 "완료",
                 style: TextStyle(
@@ -89,7 +76,10 @@ class _PostScreenState extends ConsumerState<PostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PostCategory(onCategorySelected: onCategorySelected),
+              UpdatePostCategory(
+                onCategoryEdited: onCategoryEdited,
+                categoryController: widget.categoryController,
+              ),
               SizedBox(
                 width: 500,
                 child: Divider(
@@ -119,7 +109,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                         autofocus: false,
                         maxLines: null,
                         minLines: null,
-                        controller: _postTitleController,
+                        controller: widget.titleController,
                         decoration: const InputDecoration(
                           hintText: '제목(필수) - 30자 내외로 적어주세요',
                           border: InputBorder.none,
@@ -151,7 +141,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                         autofocus: false,
                         maxLines: null,
                         minLines: null,
-                        controller: _postContentController,
+                        controller: widget.contentController,
                         decoration: const InputDecoration(
                           hintText:
                               '본문(필수) \n-최소 1자~1000자 이내 작성할 수 있어요. \n-게시물이 다른 유저로부터 신고를 받거나 운영 \n정책에 맞지 않을 경우 숨김 처리 돼요.',
