@@ -4,12 +4,14 @@ import 'package:intl/intl.dart';
 class HomeContainer extends StatelessWidget {
   final String category, title, content;
   final int uploadTime;
+  final List<String>? photoList;
   const HomeContainer({
     super.key,
     required this.category,
     required this.title,
     required this.content,
     required this.uploadTime,
+    this.photoList,
   });
 
   String _getFormattedTime() {
@@ -86,6 +88,44 @@ class HomeContainer extends StatelessWidget {
                     fontSize: 20,
                   ),
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
+                photoList != null && photoList!.isNotEmpty
+                    ? Container(
+                        padding: const EdgeInsets.only(
+                          bottom: 10,
+                        ),
+                        height: 128,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemCount: photoList!.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  12,
+                                ),
+                              ),
+                              clipBehavior: Clip.hardEdge,
+                              height: 128,
+                              child: Image(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                  photoList![index],
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(
+                              height: 5,
+                            );
+                          },
+                        ),
+                      )
+                    : Container(),
               ],
             ),
           ),

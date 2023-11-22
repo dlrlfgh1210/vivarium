@@ -4,6 +4,7 @@ class PostModel {
   final String title;
   final String content;
   final int createdAt;
+  final List<String>? photoList;
 
   PostModel({
     required this.id,
@@ -11,6 +12,7 @@ class PostModel {
     required this.title,
     required this.content,
     required this.createdAt,
+    this.photoList,
   });
 
   PostModel.fromJson(
@@ -20,6 +22,9 @@ class PostModel {
         category = json['category'],
         title = json['title'],
         content = json['content'],
+        photoList = json['photoList'] != null
+            ? List<String>.from(json['photoList'])
+            : null,
         createdAt = json['createdAt'];
 
   Map<String, dynamic> toJson() {
@@ -28,6 +33,7 @@ class PostModel {
       'category': category,
       'title': title,
       'content': content,
+      'photoList': photoList,
       'createdAt': createdAt,
     };
   }

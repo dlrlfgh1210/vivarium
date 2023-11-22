@@ -137,6 +137,7 @@ class _CameraScreenState extends State<CameraScreen>
       backgroundColor: Colors.black,
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
         child: !_hasPermission
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -260,7 +261,6 @@ class _CameraScreenState extends State<CameraScreen>
                 ],
               ),
       ),
-      // bottomNavigationBar: const CameraBottom(),
     );
   }
 }

@@ -22,7 +22,7 @@ class PostScreen extends ConsumerStatefulWidget {
 
 class _PostScreenState extends ConsumerState<PostScreen> {
   int selectedCategoryIndex = 0;
-  List<XFile>? _pictures;
+  List<XFile> pictures = [];
   late TextEditingController _postTitleController;
   late TextEditingController _postContentController;
   @override
@@ -30,7 +30,6 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     super.initState();
     _postTitleController = TextEditingController();
     _postContentController = TextEditingController();
-    _pictures = [];
   }
 
   void onCategorySelected(int index) {
@@ -46,11 +45,16 @@ class _PostScreenState extends ConsumerState<PostScreen> {
           selectedCategory,
           _postTitleController.text,
           _postContentController.text,
+          pictures
+              .map(
+                (e) => File(e.path),
+              )
+              .toList(),
           context,
         );
     _postTitleController.clear();
     _postContentController.clear();
-    _pictures?.clear(); // 사진 목록 지우기
+    pictures.clear();
 
     context.goNamed(HomeScreen.routeName);
   }
@@ -185,17 +189,18 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           TextButton(
                             onPressed: () async {
                               final navigator = Navigator.of(context);
-                              final pictures =
+                              final newPictures =
                                   await ImagePicker().pickMultiImage();
 
-                              if (pictures.isEmpty) {
+                              if (newPictures.isEmpty) {
                                 // 선택된 이미지가 없다면 현재 다이얼로그만 닫고 더 이상 진행하지 않음
                                 navigator.pop();
                                 return;
                               }
 
                               setState(() {
-                                _pictures?.addAll(pictures);
+                                pictures = List.from(pictures)
+                                  ..addAll(newPictures);
                               });
                               Navigator.pop(context);
                             },
@@ -203,7 +208,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              final pictures =
+                              final newPictures =
                                   await Navigator.push<List<XFile>>(
                                 context,
                                 MaterialPageRoute(
@@ -211,9 +216,10 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                                 ),
                               );
 
-                              if (pictures != null) {
+                              if (newPictures != null) {
                                 setState(() {
-                                  _pictures?.addAll(pictures);
+                                  pictures = List.from(pictures)
+                                    ..addAll(newPictures);
                                 });
                               }
                               Navigator.pop(context);
@@ -257,36 +263,35 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                       width: 200,
                       height: 80,
                       child: Wrap(
-                        spacing: 5.0, // 각 사진 사이의 간격 조절
-                        runSpacing: 5.0, // 줄 간격 조절
-                        children: _pictures?.map((XFile picture) {
-                              return Stack(
-                                children: [
-                                  SizedBox(
-                                    height: 80,
-                                    width: 80,
-                                    child: Image.file(
-                                      File(picture.path),
-                                      fit: BoxFit.cover,
-                                    ),
+                        spacing: 5.0,
+                        runSpacing: 5.0,
+                        children: pictures.map((XFile picture) {
+                          return Stack(
+                            children: [
+                              SizedBox(
+                                height: 80,
+                                width: 80,
+                                child: Image.file(
+                                  File(picture.path),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: GestureDetector(
+                                  onTap: () => setState(() {
+                                    pictures.remove(picture);
+                                  }),
+                                  child: Icon(
+                                    FontAwesomeIcons.solidCircleXmark,
+                                    color: Colors.grey.shade800,
                                   ),
-                                  Positioned(
-                                    top: 5,
-                                    right: 5,
-                                    child: GestureDetector(
-                                      onTap: () => setState(() {
-                                        _pictures?.remove(picture);
-                                      }),
-                                      child: Icon(
-                                        FontAwesomeIcons.solidCircleXmark,
-                                        color: Colors.grey.shade800,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList() ??
-                            [],
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ],

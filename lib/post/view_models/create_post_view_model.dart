@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,18 +22,34 @@ class CreatePostViewModel extends AsyncNotifier<void> {
     String category,
     String title,
     String content,
+    List<File>? photos,
     BuildContext context,
   ) async {
     final uid = _authenticationRepository.user!.uid;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(
       () async {
+        List<String> photoUrls = [];
+        if (photos!.isNotEmpty) {
+          final uploadTasks = await Future.wait(
+            [
+              for (int i = 0; i < photos.length; i++)
+                _postRepository.uploadImageFile(photos[i], i, uid)
+            ],
+          );
+          for (var task in uploadTasks) {
+            if (task.metadata != null) {
+              photoUrls.add(await task.ref.getDownloadURL());
+            }
+          }
+        }
         await _postRepository.createPost(
           PostModel(
             id: '',
             category: category,
             title: title,
             content: content,
+            photoList: photoUrls,
             createdAt: DateTime.now().millisecondsSinceEpoch,
           ),
         );

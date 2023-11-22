@@ -149,6 +149,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 category: posts[index].category,
                                 title: posts[index].title,
                                 content: posts[index].content,
+                                photoList: posts[index].photoList,
                                 uploadTime: posts[index].createdAt,
                               ),
                             ),
