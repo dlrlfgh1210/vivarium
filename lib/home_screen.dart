@@ -57,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 );
-
+                Navigator.pop(context);
                 if (updatedData != null &&
                     updatedData.containsKey("newCategory") &&
                     updatedData.containsKey("newTitle") &&

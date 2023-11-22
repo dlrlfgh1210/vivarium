@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:vivarium/camera_screen.dart';
 import 'package:vivarium/home_screen.dart';
 import 'package:vivarium/post/view_models/create_post_view_model.dart';
 import 'package:vivarium/post/views/post_category.dart';
@@ -17,6 +22,7 @@ class PostScreen extends ConsumerStatefulWidget {
 
 class _PostScreenState extends ConsumerState<PostScreen> {
   int selectedCategoryIndex = 0;
+  List<XFile>? _pictures;
   late TextEditingController _postTitleController;
   late TextEditingController _postContentController;
   @override
@@ -24,6 +30,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     super.initState();
     _postTitleController = TextEditingController();
     _postContentController = TextEditingController();
+    _pictures = [];
   }
 
   void onCategorySelected(int index) {
@@ -43,6 +50,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         );
     _postTitleController.clear();
     _postContentController.clear();
+    _pictures?.clear(); // 사진 목록 지우기
 
     context.goNamed(HomeScreen.routeName);
   }
@@ -165,24 +173,123 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               const SizedBox(
                 height: 20,
               ),
-              DottedBorder(
-                borderType: BorderType.RRect,
-                color: Colors.grey,
-                strokeWidth: 1,
-                dashPattern: const [8, 4],
-                radius: const Radius.circular(12),
-                child: SizedBox(
-                  height: 80,
-                  width: 80,
-                  child: Center(
-                    child: Image.asset(
-                      "lib/assets/images/camera.png",
-                      fit: BoxFit.cover,
-                      height: 50,
-                      width: 50,
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("어떻게 할래?"),
+                        content: const Text("갤러리 또는 직접 찍어보세요"),
+                        actions: [
+                          TextButton(
+                            onPressed: () async {
+                              final navigator = Navigator.of(context);
+                              final pictures =
+                                  await ImagePicker().pickMultiImage();
+
+                              if (pictures.isEmpty) {
+                                // 선택된 이미지가 없다면 현재 다이얼로그만 닫고 더 이상 진행하지 않음
+                                navigator.pop();
+                                return;
+                              }
+
+                              setState(() {
+                                _pictures?.addAll(pictures);
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: const Text("갤러리"),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              final pictures =
+                                  await Navigator.push<List<XFile>>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const CameraScreen(),
+                                ),
+                              );
+
+                              if (pictures != null) {
+                                setState(() {
+                                  _pictures?.addAll(pictures);
+                                });
+                              }
+                              Navigator.pop(context);
+                            },
+                            child: const Text("직접 찍기"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("취소"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Row(
+                  children: [
+                    DottedBorder(
+                      borderType: BorderType.RRect,
                       color: Colors.grey,
+                      strokeWidth: 1,
+                      dashPattern: const [8, 4],
+                      radius: const Radius.circular(12),
+                      child: SizedBox(
+                        height: 80,
+                        width: 80,
+                        child: Center(
+                          child: Image.asset(
+                            "lib/assets/images/camera.png",
+                            fit: BoxFit.cover,
+                            height: 50,
+                            width: 50,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(
+                      width: 200,
+                      height: 80,
+                      child: Wrap(
+                        spacing: 5.0, // 각 사진 사이의 간격 조절
+                        runSpacing: 5.0, // 줄 간격 조절
+                        children: _pictures?.map((XFile picture) {
+                              return Stack(
+                                children: [
+                                  SizedBox(
+                                    height: 80,
+                                    width: 80,
+                                    child: Image.file(
+                                      File(picture.path),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 5,
+                                    right: 5,
+                                    child: GestureDetector(
+                                      onTap: () => setState(() {
+                                        _pictures?.remove(picture);
+                                      }),
+                                      child: Icon(
+                                        FontAwesomeIcons.solidCircleXmark,
+                                        color: Colors.grey.shade800,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList() ??
+                            [],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
