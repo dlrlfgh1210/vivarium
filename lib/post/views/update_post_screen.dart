@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:vivarium/camera_screen.dart';
 import 'package:vivarium/post/views/update_post_category.dart';
 
 class UpdatePostScreen extends ConsumerStatefulWidget {
@@ -12,6 +16,7 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
   final String initialCategory;
   final String initialTitle;
   final String initialContent;
+  final List<File>? initialPhotoList;
   final String postId;
   const UpdatePostScreen({
     Key? key,
@@ -21,6 +26,7 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
     required this.initialCategory,
     required this.initialTitle,
     required this.initialContent,
+    this.initialPhotoList,
     required this.postId,
   }) : super(key: key);
 
@@ -30,6 +36,68 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
 
 class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
   void onCategoryEdited(int index) {}
+
+  List<XFile> photoList = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 이미지가 없을 때만 초기화하도록 수정
+    if (widget.initialPhotoList != null && photoList.isEmpty) {
+      photoList.addAll(
+        widget.initialPhotoList!.map((file) => XFile(file.path)),
+      );
+    }
+  }
+
+  Future<void> _onUpdateTap() async {
+    final newCategory = widget.categoryController.text;
+    final newTitle = widget.titleController.text;
+    final newContent = widget.contentController.text;
+
+    print('Before update - photoList: $photoList');
+
+    final List<String> photoPaths = [];
+    final List<XFile> updatedPhotoList = [];
+
+    if (photoList.isNotEmpty) {
+      for (var xFile in photoList) {
+        if (xFile.path.startsWith('http')) {
+          continue;
+        }
+
+        final file = File(xFile.path);
+
+        print('Before update - file: $file');
+
+        if (file.existsSync()) {
+          photoPaths.add(file.path);
+          updatedPhotoList.add(xFile);
+        } else {
+          print('파일이 존재하지 않습니다: ${file.path}');
+        }
+      }
+    }
+
+    print('After update - photoList: $photoList');
+
+    // 이미지를 추가하지 않고 photoList는 그대로 두기
+    // setState를 사용하지 않음
+
+    print('photoPaths: $photoPaths');
+    print('updatedPhotoList: $updatedPhotoList');
+    final updatedData = {
+      "newCategory": newCategory,
+      "newTitle": newTitle,
+      "newContent": newContent,
+      "newPhoto": photoPaths,
+    };
+
+    print('Updated Data: $updatedData');
+
+    Navigator.pop(context, updatedData);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,17 +114,7 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
             ),
             const Text("수정하기"),
             GestureDetector(
-              onTap: () async {
-                final newCategory = widget.categoryController.text;
-                final newTitle = widget.titleController.text;
-                final newContent = widget.contentController.text;
-
-                Navigator.pop(context, {
-                  "newCategory": newCategory,
-                  "newTitle": newTitle,
-                  "newContent": newContent,
-                });
-              },
+              onTap: _onUpdateTap,
               child: const Text(
                 "완료",
                 style: TextStyle(
@@ -155,25 +213,135 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
               const SizedBox(
                 height: 20,
               ),
-              DottedBorder(
-                borderType: BorderType.RRect,
-                color: Colors.grey,
-                strokeWidth: 1,
-                dashPattern: const [8, 4],
-                radius: const Radius.circular(12),
-                child: SizedBox(
-                  height: 80,
-                  width: 80,
-                  child: Center(
-                    child: Image.asset(
-                      "lib/assets/images/camera.png",
-                      fit: BoxFit.cover,
-                      height: 50,
-                      width: 50,
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("다시 할려고??"),
+                            content: const Text("Gallery or Photo"),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  final newPictures =
+                                      await ImagePicker().pickMultiImage();
+
+                                  if (newPictures.isNotEmpty) {
+                                    // 각 이미지의 파일 경로 확인
+                                    for (var picture in newPictures) {
+                                      print('Image path: ${picture.path}');
+                                    }
+
+                                    setState(() {
+                                      photoList = List.from(photoList)
+                                        ..addAll(newPictures
+                                            .map((xFile) => XFile(xFile.path)));
+                                    });
+                                  }
+                                },
+                                child: const Text("갤러리"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  final newPictures =
+                                      await Navigator.push<List<XFile>>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const CameraScreen(),
+                                    ),
+                                  );
+
+                                  if (newPictures != null) {
+                                    setState(() {
+                                      photoList = List.from(photoList)
+                                        ..addAll(newPictures);
+                                    });
+                                  }
+                                  // Navigator.pop(context);
+                                },
+                                child: const Text("직접 찍기"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("취소"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
                       color: Colors.grey,
+                      strokeWidth: 1,
+                      dashPattern: const [8, 4],
+                      radius: const Radius.circular(12),
+                      child: SizedBox(
+                        height: 80,
+                        width: 80,
+                        child: Center(
+                          child: Image.asset(
+                            "lib/assets/images/camera.png",
+                            fit: BoxFit.cover,
+                            height: 50,
+                            width: 50,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: photoList.length,
+                      itemBuilder: (context, index) {
+                        print("File path: ${photoList[index].path}");
+                        return Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              clipBehavior: Clip.hardEdge,
+                              height: 80,
+                              width: 80,
+                              child: photoList[index].path.startsWith('http')
+                                  ? Image.network(
+                                      photoList[index].path,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.file(
+                                      File(photoList[index].path),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  setState(() {
+                                    photoList.removeAt(index);
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -9,6 +9,26 @@ import 'package:vivarium/post/models/post_model.dart';
 class PostRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  Future<List<String>> uploadImageFiles(List<File> images, String uid) async {
+    List<String> downloadUrls = [];
+
+    await Future.wait(
+      images.map((File image) async {
+        final String imagePath =
+            "images/$uid/${DateTime.now().millisecondsSinceEpoch.toString()}_${images.indexOf(image)}";
+        final UploadTask uploadTask =
+            _storage.ref().child(imagePath).putFile(image);
+
+        await uploadTask.whenComplete(() async {
+          final String downloadUrl =
+              await _storage.ref(imagePath).getDownloadURL();
+          downloadUrls.add(downloadUrl);
+        });
+      }),
+    );
+
+    return downloadUrls;
+  }
 
   UploadTask uploadImageFile(File image, int index, String uid) {
     final fileRef = _storage.ref().child(
@@ -25,12 +45,18 @@ class PostRepository {
     await _db.collection("posts").doc(postId).delete();
   }
 
-  Future<void> updatePost(String postId, String newCategory, String newTitle,
-      String newContent) async {
+  Future<void> updatePost(
+    String postId,
+    String newCategory,
+    String newTitle,
+    String newContent,
+    List<File>? newPhoto,
+  ) async {
     await _db.collection("posts").doc(postId).update({
       "category": newCategory,
       "title": newTitle,
       "content": newContent,
+      "photo": newPhoto,
     });
   }
 

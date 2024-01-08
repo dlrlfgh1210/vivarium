@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vivarium/home_container.dart';
 import 'package:vivarium/post/view_models/delete_post_view_model.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
@@ -21,7 +24,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _onLongPress(
-      String postId, String category, String title, String content) {
+    String postId,
+    String category,
+    String title,
+    String content,
+    List<String>? photoList,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -43,7 +51,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final updatedData = await Navigator.push(
+                final List<File>? files =
+                    photoList?.map((path) => File(path)).toList();
+
+                final updatedData = await Navigator.push<Map<String, dynamic>>(
                   context,
                   MaterialPageRoute(
                     builder: (context) => UpdatePostScreen(
@@ -53,22 +64,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       initialCategory: category,
                       initialTitle: title,
                       initialContent: content,
+                      initialPhotoList: files,
                       postId: postId,
                     ),
                   ),
                 );
-                Navigator.pop(context);
+                print('Received Data from UpdatePostScreen: $updatedData');
+
                 if (updatedData != null &&
                     updatedData.containsKey("newCategory") &&
                     updatedData.containsKey("newTitle") &&
-                    updatedData.containsKey("newContent")) {
-                  final newCategory = updatedData["newCategory"];
-                  final newTitle = updatedData["newTitle"];
-                  final newContent = updatedData["newContent"];
+                    updatedData.containsKey("newContent") &&
+                    updatedData.containsKey("newPhoto")) {
+                  final newCategory = updatedData["newCategory"] as String;
+                  final newTitle = updatedData["newTitle"] as String;
+                  final newContent = updatedData["newContent"] as String;
+                  final newPhoto = updatedData["newPhoto"] as List<String>;
+                  final newPhotoFiles = newPhoto != null
+                      ? newPhoto.map((path) => XFile(path)).toList()
+                      : <XFile>[];
 
-                  await ref
-                      .read(updatePostProvider.notifier)
-                      .updatePost(postId, newCategory, newTitle, newContent);
+                  print('newPhoto: $newPhoto');
+
+                  await ref.read(updatePostProvider.notifier).updatePost(
+                        postId,
+                        newCategory,
+                        newTitle,
+                        newContent,
+                        newPhotoFiles.map((xFile) => File(xFile.path)).toList(),
+                      );
 
                   await ref.read(postProvider.notifier).refetch();
                 }
@@ -144,6 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 posts[index].category,
                                 posts[index].title,
                                 posts[index].content,
+                                posts[index].photoList,
                               ),
                               child: HomeContainer(
                                 category: posts[index].category,

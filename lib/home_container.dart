@@ -109,12 +109,10 @@ class HomeContainer extends StatelessWidget {
                                 ),
                               ),
                               clipBehavior: Clip.hardEdge,
-                              height: 128,
-                              child: Image(
+                              child: Image.network(
+                                photoList![index],
                                 fit: BoxFit.cover,
-                                image: NetworkImage(
-                                  photoList![index],
-                                ),
+                                height: 128,
                               ),
                             );
                           },
