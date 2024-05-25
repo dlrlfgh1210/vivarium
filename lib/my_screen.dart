@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MyScreen extends StatefulWidget {
-  static const routeName = "My";
-  static const routeURL = "/My";
+  // static const routeName = "My";
+  // static const routeURL = "/My";
   const MyScreen({super.key});
 
   @override

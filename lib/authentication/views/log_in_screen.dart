@@ -23,7 +23,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
   void _onSubmitTap() {
     if (_formKey.currentState != null) {
       if (_formKey.currentState!.validate()) {
-        _formKey.currentState!.save();
+        _formKey.currentState?.save();
         ref.read(logInProvider.notifier).logIn(
               formData["email"]!,
               formData["password"]!,
@@ -34,7 +34,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
   }
 
   void _onSignUpTap() {
-    context.goNamed(SignUpScreen.routeName);
+    context.pushNamed(SignUpScreen.routeName);
   }
 
   void _onScaffoldTap() {
@@ -77,10 +77,16 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                 AuthContainer(
                   secretAuth: false,
                   authHint: 'Email',
-                  saveValue: (newValue) {
+                  onSaved: (newValue) {
                     if (newValue != null) {
                       formData['email'] = newValue;
                     }
+                  },
+                  validator: (value) {
+                    if (value != null && value.isEmpty) {
+                      return "Plase write your email";
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(
@@ -89,10 +95,16 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                 AuthContainer(
                   secretAuth: true,
                   authHint: 'Password',
-                  saveValue: (newValue) {
+                  onSaved: (newValue) {
                     if (newValue != null) {
                       formData['password'] = newValue;
                     }
+                  },
+                  validator: (value) {
+                    if (value != null && value.isEmpty) {
+                      return "Plase write your password";
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(
@@ -115,6 +127,10 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                     buttonSize: 1,
                   ),
                 ),
+                // if (ref.watch(logInProvider).hasError)
+                //   AuthErrorMessage(
+                //     error: ref.watch(logInProvider).error,
+                //   ),
               ],
             ),
           ),

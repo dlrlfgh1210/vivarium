@@ -43,7 +43,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        ref.read(authRepo).signOut();
+                        ref.read(authRepository).signOut();
                         context.goNamed(LogInScreen.routeName);
                       },
                       child: const Text(

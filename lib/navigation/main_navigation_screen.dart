@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vivarium/chat_screen.dart';
 import 'package:vivarium/home_screen.dart';
 import 'package:vivarium/more_screen.dart';
-import 'package:vivarium/my_screen.dart';
 import 'package:vivarium/navigation/nav_tab.dart';
 import 'package:vivarium/search_screen.dart';
+import 'package:vivarium/users/views/users_profile_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   static const routeName = "navigation";
@@ -26,7 +25,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     "home",
     "search",
     "my",
-    "chat",
     "more",
   ];
   late int _selectedIndex = _tabs.indexOf(widget.tab);
@@ -53,14 +51,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           Offstage(
             offstage: _selectedIndex != 2,
-            child: const MyScreen(),
+            child: const UserProfileSCreen(),
           ),
           Offstage(
             offstage: _selectedIndex != 3,
-            child: const ChatScreen(),
-          ),
-          Offstage(
-            offstage: _selectedIndex != 4,
             child: const MoreScreen(),
           ),
         ],
@@ -96,18 +90,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   onTap: () => _onTap(2),
                 ),
                 NavTab(
-                  text: "커뮤니티",
-                  isSelected: _selectedIndex == 3,
-                  icon: FontAwesomeIcons.solidPaperPlane,
-                  selectedIcon: FontAwesomeIcons.solidPaperPlane,
-                  onTap: () => _onTap(3),
-                ),
-                NavTab(
                   text: "전체",
-                  isSelected: _selectedIndex == 4,
-                  icon: FontAwesomeIcons.chessBoard,
-                  selectedIcon: FontAwesomeIcons.chessBoard,
-                  onTap: () => _onTap(4),
+                  isSelected: _selectedIndex == 3,
+                  icon: FontAwesomeIcons.bars,
+                  selectedIcon: FontAwesomeIcons.bars,
+                  onTap: () => _onTap(3),
                 ),
               ],
             ),

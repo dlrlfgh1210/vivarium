@@ -9,15 +9,11 @@ class AuthenticationRepository {
 
   Stream<User?> autheStateChanges() => _firebaseAuth.authStateChanges();
 
-  Future<void> emailSignUp(String email, String password) async {
-    await _firebaseAuth.createUserWithEmailAndPassword(
+  Future<UserCredential> signUp(String email, String password) async {
+    return _firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
-  }
-
-  Future<void> signOut() async {
-    await _firebaseAuth.signOut();
   }
 
   Future<void> signIn(String email, String password) async {
@@ -26,11 +22,17 @@ class AuthenticationRepository {
       password: password,
     );
   }
+
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
+  }
 }
 
-final authRepo = Provider((ref) => AuthenticationRepository());
+final authRepository = Provider(
+  (ref) => AuthenticationRepository(),
+);
 
 final authState = StreamProvider((ref) {
-  final repo = ref.read(authRepo);
+  final repo = ref.read(authRepository);
   return repo.autheStateChanges();
 });

@@ -20,17 +20,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   Map<String, String> formData = {};
 
-  void _onCreateTap() {
+  void _onCreateTap() async {
     if (_formKey.currentState != null) {
       if (_formKey.currentState!.validate()) {
-        _formKey.currentState!.save();
+        _formKey.currentState?.save();
+
+        ref
+            .read(signUpProvider.notifier)
+            .signUp(formData["email"]!, formData["password"]!, context);
       }
     }
-    ref.read(signUpForm.notifier).state = {
-      "email": formData['email'],
-      "password": formData['password']
-    };
-    ref.read(signUpProvider.notifier).signUp(context);
   }
 
   void _onLogInTap() {
@@ -77,10 +76,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 AuthContainer(
                   secretAuth: false,
                   authHint: 'Email',
-                  saveValue: (newValue) {
+                  onSaved: (newValue) {
                     if (newValue != null) {
                       formData['email'] = newValue;
                     }
+                  },
+                  validator: (value) {
+                    if (value != null && value.isEmpty) {
+                      return "Plase write your email";
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(
@@ -89,10 +94,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 AuthContainer(
                   secretAuth: true,
                   authHint: 'Password',
-                  saveValue: (newValue) {
+                  onSaved: (newValue) {
                     if (newValue != null) {
                       formData['password'] = newValue;
                     }
+                  },
+                  validator: (value) {
+                    if (value != null && value.isEmpty) {
+                      return "Plase write your password";
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(
@@ -115,6 +126,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     buttonSize: 1,
                   ),
                 ),
+                // if (ref.watch(signUpProvider).hasError)
+                //   AuthErrorMessage(
+                //     error: ref.watch(signUpProvider).error,
+                //   ),
               ],
             ),
           ),

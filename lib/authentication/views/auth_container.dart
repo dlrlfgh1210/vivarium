@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 class AuthContainer extends StatelessWidget {
   final String authHint;
-  final dynamic saveValue;
+  final dynamic onSaved;
   final dynamic secretAuth;
+  final dynamic validator;
   const AuthContainer({
     super.key,
     required this.authHint,
-    this.saveValue,
+    this.onSaved,
     this.secretAuth,
+    this.validator,
   });
 
   @override
@@ -32,7 +34,8 @@ class AuthContainer extends StatelessWidget {
           hintText: authHint,
           border: InputBorder.none,
         ),
-        onSaved: saveValue,
+        onSaved: onSaved,
+        validator: validator,
       ),
     );
   }
