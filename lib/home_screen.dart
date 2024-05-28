@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/home_container.dart';
 import 'package:vivarium/post/view_models/delete_post_view_model.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
@@ -41,7 +42,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     String title,
     String content,
     List<String>? photoList,
+    String creatorUid,
   ) {
+    final currentUserUid = ref.read(authRepository).user?.uid;
+
+    if (currentUserUid != creatorUid) {
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -180,6 +188,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 posts[index].title,
                                 posts[index].content,
                                 posts[index].photoList,
+                                posts[index].creatorUid,
                               ),
                               child: HomeContainer(
                                 category: posts[index].category,
