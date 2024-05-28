@@ -17,7 +17,7 @@ class HomeContainer extends StatelessWidget {
   String _getFormattedTime() {
     final DateTime now = DateTime.now();
     final DateTime uploadDateTime =
-        DateTime.fromMillisecondsSinceEpoch(uploadTime);
+        DateTime.fromMillisecondsSinceEpoch(uploadTime ~/ 1000);
     final Duration difference = now.difference(uploadDateTime);
 
     if (difference.inMinutes < 1) {
