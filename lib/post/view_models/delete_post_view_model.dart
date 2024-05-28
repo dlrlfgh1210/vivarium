@@ -12,7 +12,7 @@ class DeletePostViewModel extends AsyncNotifier<void> {
 
   @override
   FutureOr<void> build() {
-    _authenticationRepository = ref.read(authRepo);
+    _authenticationRepository = ref.read(authRepository);
     _postRepository = ref.read(postRepo);
   }
 
@@ -20,7 +20,13 @@ class DeletePostViewModel extends AsyncNotifier<void> {
     String postId,
     BuildContext context,
   ) async {
-    final uid = _authenticationRepository.user!.uid;
+    final user = _authenticationRepository.user;
+    if (user == null) return;
+
+    final post = await _postRepository.getPost(postId);
+    if (post.creatorUid != user.uid) {
+      throw Exception("You are not authorized to delete this post.");
+    }
 
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(

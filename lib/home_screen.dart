@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:vivarium/home_container.dart';
 import 'package:vivarium/post/view_models/delete_post_view_model.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
@@ -23,6 +22,19 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late TextEditingController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void _onLongPress(
     String postId,
     String category,
@@ -39,12 +51,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           actions: [
             TextButton(
               onPressed: () async {
-                await ref.read(deletePostProvider.notifier).deletePost(
-                      postId,
-                      context,
-                    );
-                if (context.mounted) {
-                  context.pop();
+                try {
+                  await ref.read(deletePostProvider.notifier).deletePost(
+                        postId,
+                        context,
+                      );
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                } catch (e) {
+                  // Handle the error if any
+                  print(e);
                 }
               },
               child: const Text("삭제"),
@@ -53,7 +70,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onPressed: () async {
                 final List<File>? files =
                     photoList?.map((path) => File(path)).toList();
-
                 final updatedData = await Navigator.push<Map<String, dynamic>>(
                   context,
                   MaterialPageRoute(
@@ -69,7 +85,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 );
-                print('Received Data from UpdatePostScreen: $updatedData');
 
                 if (updatedData != null &&
                     updatedData.containsKey("newCategory") &&
@@ -80,18 +95,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   final newTitle = updatedData["newTitle"] as String;
                   final newContent = updatedData["newContent"] as String;
                   final newPhoto = updatedData["newPhoto"] as List<String>;
-                  final newPhotoFiles = newPhoto != null
-                      ? newPhoto.map((path) => XFile(path)).toList()
-                      : <XFile>[];
-
-                  print('newPhoto: $newPhoto');
 
                   await ref.read(updatePostProvider.notifier).updatePost(
                         postId,
                         newCategory,
                         newTitle,
                         newContent,
-                        newPhotoFiles.map((xFile) => File(xFile.path)).toList(),
+                        newPhoto,
                       );
 
                   await ref.read(postProvider.notifier).refetch();
@@ -123,12 +133,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           data: (posts) {
             return Scaffold(
               appBar: AppBar(
-                title: const Center(
+                title: Center(
                   child: SizedBox(
                     height: 50,
                     child: CupertinoSearchTextField(
+                      controller: _controller,
                       placeholder: "수초나 동물이름, 궁금한 글 검색",
-                      placeholderStyle: TextStyle(
+                      placeholderStyle: const TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),

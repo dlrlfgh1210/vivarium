@@ -42,12 +42,10 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
   @override
   void initState() {
     super.initState();
-
-    // 이미지가 없을 때만 초기화하도록 수정
-    if (widget.initialPhotoList != null && photoList.isEmpty) {
-      photoList.addAll(
-        widget.initialPhotoList!.map((file) => XFile(file.path)),
-      );
+    // 초기 이미지 리스트 설정
+    if (widget.initialPhotoList != null) {
+      photoList =
+          widget.initialPhotoList!.map((file) => XFile(file.path)).toList();
     }
   }
 
@@ -56,45 +54,27 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
     final newTitle = widget.titleController.text;
     final newContent = widget.contentController.text;
 
-    print('Before update - photoList: $photoList');
-
     final List<String> photoPaths = [];
     final List<XFile> updatedPhotoList = [];
 
-    if (photoList.isNotEmpty) {
-      for (var xFile in photoList) {
-        if (xFile.path.startsWith('http')) {
-          continue;
-        }
-
+    for (var xFile in photoList) {
+      if (xFile.path.startsWith('http')) {
+        photoPaths.add(xFile.path);
+      } else {
         final file = File(xFile.path);
-
-        print('Before update - file: $file');
-
         if (file.existsSync()) {
           photoPaths.add(file.path);
           updatedPhotoList.add(xFile);
-        } else {
-          print('파일이 존재하지 않습니다: ${file.path}');
         }
       }
     }
 
-    print('After update - photoList: $photoList');
-
-    // 이미지를 추가하지 않고 photoList는 그대로 두기
-    // setState를 사용하지 않음
-
-    print('photoPaths: $photoPaths');
-    print('updatedPhotoList: $updatedPhotoList');
     final updatedData = {
       "newCategory": newCategory,
       "newTitle": newTitle,
       "newContent": newContent,
       "newPhoto": photoPaths,
     };
-
-    print('Updated Data: $updatedData');
 
     Navigator.pop(context, updatedData);
   }
@@ -226,21 +206,15 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                             actions: [
                               TextButton(
                                 onPressed: () async {
+                                  final navigator = Navigator.of(context);
                                   final newPictures =
                                       await ImagePicker().pickMultiImage();
-
                                   if (newPictures.isNotEmpty) {
-                                    // 각 이미지의 파일 경로 확인
-                                    for (var picture in newPictures) {
-                                      print('Image path: ${picture.path}');
-                                    }
-
                                     setState(() {
-                                      photoList = List.from(photoList)
-                                        ..addAll(newPictures
-                                            .map((xFile) => XFile(xFile.path)));
+                                      photoList.addAll(newPictures);
                                     });
                                   }
+                                  navigator.pop();
                                 },
                                 child: const Text("갤러리"),
                               ),
@@ -257,11 +231,10 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
 
                                   if (newPictures != null) {
                                     setState(() {
-                                      photoList = List.from(photoList)
-                                        ..addAll(newPictures);
+                                      photoList.addAll(newPictures);
                                     });
                                   }
-                                  // Navigator.pop(context);
+                                  Navigator.pop(context);
                                 },
                                 child: const Text("직접 찍기"),
                               ),
@@ -304,7 +277,6 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                       scrollDirection: Axis.horizontal,
                       itemCount: photoList.length,
                       itemBuilder: (context, index) {
-                        print("File path: ${photoList[index].path}");
                         return Stack(
                           children: [
                             Container(

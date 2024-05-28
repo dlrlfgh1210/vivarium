@@ -7,17 +7,13 @@ import 'package:vivarium/post/repos/post_repo.dart';
 class PostViewModel extends AsyncNotifier<List<PostModel>> {
   late final PostRepository _postRepository;
   List<PostModel> _list = [];
+  int? lastItemCreatedAt;
 
-  Future<List<PostModel>> _fetchPosts() async {
-    final posts = await _postRepository.fetchPosts();
-    return posts.docs
-        .map(
-          (doc) => PostModel.fromJson(
-            doc.data(),
-            doc.id,
-          ),
-        )
-        .toList();
+  Future<List<PostModel>> _fetchPosts({int? lastItemCreatedAt}) async {
+    final posts = await _postRepository.fetchPosts(
+      lastItemCreatedAt: lastItemCreatedAt ?? this.lastItemCreatedAt,
+    );
+    return posts;
   }
 
   Future<void> refetch() async {

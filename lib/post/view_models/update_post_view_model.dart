@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/post/repos/post_repo.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
 
@@ -20,25 +21,30 @@ class UpdatePostViewModel extends AsyncNotifier<void> {
     String newCategory,
     String newTitle,
     String newContent,
-    List<File>? newPhoto,
+    List<String> newPhotoPaths,
   ) async {
-    List<String> photoUrls = [];
+    final user = ref.read(authRepository).user;
+    if (user == null) return;
 
-    if (newPhoto != null && newPhoto.isNotEmpty) {
-      try {
-        final uploadTasks = await Future.wait(
-          [
-            for (int i = 0; i < newPhoto.length; i++)
-              _postRepository.uploadImageFile(newPhoto[i], i, postId)
-          ],
-        );
-        for (var task in uploadTasks) {
+    // 포스트를 가져와서 작성자를 확인합니다.
+    final post = await _postRepository.getPost(postId);
+    if (post.creatorUid != user.uid) {
+      throw Exception("You are not authorized to update this post.");
+    }
+
+    List<String> photoUrls = [];
+    for (var photoPath in newPhotoPaths) {
+      if (photoPath.startsWith('http')) {
+        // 기존 사진의 URL
+        photoUrls.add(photoPath);
+      } else {
+        // 새로 추가된 사진 파일
+        final file = File(photoPath);
+        if (file.existsSync()) {
+          final task = await _postRepository.uploadImageFile(file, user.uid);
           final url = await task.ref.getDownloadURL();
           photoUrls.add(url);
         }
-      } catch (e) {
-        print('Error uploading images: $e');
-        // 업로드 실패 시 예외 처리
       }
     }
 
