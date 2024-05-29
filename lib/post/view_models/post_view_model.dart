@@ -27,6 +27,12 @@ class PostViewModel extends AsyncNotifier<List<PostModel>> {
     _list = await _fetchPosts();
     return _list;
   }
+
+  Future<void> searchPosts(String query) async {
+    final result = await _postRepository.searchPosts(query);
+    _list = result;
+    state = AsyncValue.data(_list);
+  }
 }
 
 final postProvider = AsyncNotifierProvider<PostViewModel, List<PostModel>>(

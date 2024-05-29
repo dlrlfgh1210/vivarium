@@ -138,6 +138,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  void _onSearchChanged(String query) {
+    ref.watch(postProvider.notifier).searchPosts(query);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ref.watch(postProvider).when(
@@ -154,6 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: SizedBox(
                     height: 50,
                     child: CupertinoSearchTextField(
+                      onChanged: _onSearchChanged,
                       controller: _controller,
                       placeholder: "수초나 동물이름, 궁금한 글 검색",
                       placeholderStyle: const TextStyle(

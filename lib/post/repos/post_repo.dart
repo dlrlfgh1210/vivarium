@@ -66,6 +66,37 @@ class PostRepository {
     final doc = await _db.collection("posts").doc(postId).get();
     return PostModel.fromJson(doc.data()!).copyWith(id: doc.id);
   }
+
+  Future<List<PostModel>> searchPosts(String query) async {
+    final categoryQuery = _db
+        .collection("posts")
+        .where('category', isGreaterThanOrEqualTo: query)
+        .where('category', isLessThanOrEqualTo: '$query\uF7FF')
+        .get();
+
+    final titleQuery = _db
+        .collection("posts")
+        .where('title', isGreaterThanOrEqualTo: query)
+        .where('title', isLessThanOrEqualTo: '$query\uF7FF')
+        .get();
+
+    final contentQuery = _db
+        .collection("posts")
+        .where('content', isGreaterThanOrEqualTo: query)
+        .where('content', isLessThanOrEqualTo: '$query\uF7FF')
+        .get();
+
+    final results =
+        await Future.wait([categoryQuery, titleQuery, contentQuery]);
+    final allDocs =
+        results.expand((querySnapshot) => querySnapshot.docs).toList();
+    final uniqueDocs = {for (var doc in allDocs) doc.id: doc}.values.toList();
+
+    return uniqueDocs.map((doc) {
+      final data = doc.data();
+      return PostModel.fromJson(data).copyWith(id: doc.id);
+    }).toList();
+  }
 }
 
 final postRepo = Provider((ref) => PostRepository());
