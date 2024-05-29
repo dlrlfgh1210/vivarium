@@ -18,6 +18,7 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
   final String initialContent;
   final List<File>? initialPhotoList;
   final String postId;
+  final int initialCategoryIndex;
   const UpdatePostScreen({
     Key? key,
     required this.categoryController,
@@ -28,6 +29,7 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
     required this.initialContent,
     this.initialPhotoList,
     required this.postId,
+    required this.initialCategoryIndex,
   }) : super(key: key);
 
   @override
@@ -117,6 +119,7 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
               UpdatePostCategory(
                 onCategoryEdited: onCategoryEdited,
                 categoryController: widget.categoryController,
+                initialIndex: widget.initialCategoryIndex,
               ),
               SizedBox(
                 width: 500,

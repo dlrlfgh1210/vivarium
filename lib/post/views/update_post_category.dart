@@ -13,13 +13,14 @@ List<String> pickedText = [
 
 class UpdatePostCategory extends StatefulWidget {
   final ValueChanged<int> onCategoryEdited;
-
   final TextEditingController categoryController;
+  final int initialIndex;
 
   const UpdatePostCategory({
     Key? key,
     required this.onCategoryEdited,
     required this.categoryController,
+    required this.initialIndex,
   }) : super(key: key);
 
   @override
@@ -27,7 +28,13 @@ class UpdatePostCategory extends StatefulWidget {
 }
 
 class _UpdatePostCategoryState extends State<UpdatePostCategory> {
-  int selectedIndex = 0;
+  int selectedIndex = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {

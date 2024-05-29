@@ -24,6 +24,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late TextEditingController _controller;
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +50,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (currentUserUid != creatorUid) {
       return;
     }
+    final pickedText = [
+      '비바리움 질문',
+      '이름이 궁금해요',
+      '내 아쿠아리움 자랑',
+      '비바리움 팁',
+      '수초나눔',
+      '자유',
+      '사용후기',
+    ];
+    final initialCategoryIndex = pickedText.indexOf(category);
 
     showDialog(
       context: context,
@@ -59,17 +70,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           actions: [
             TextButton(
               onPressed: () async {
-                try {
-                  await ref.read(deletePostProvider.notifier).deletePost(
-                        postId,
-                        context,
-                      );
-                  if (context.mounted) {
-                    context.pop();
-                  }
-                } catch (e) {
-                  // Handle the error if any
-                  print(e);
+                await ref.read(deletePostProvider.notifier).deletePost(
+                      postId,
+                      context,
+                    );
+                if (context.mounted) {
+                  context.pop();
                 }
               },
               child: const Text("삭제"),
@@ -90,6 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       initialContent: content,
                       initialPhotoList: files,
                       postId: postId,
+                      initialCategoryIndex: initialCategoryIndex,
                     ),
                   ),
                 );
