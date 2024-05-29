@@ -12,6 +12,8 @@ import 'package:vivarium/post/view_models/post_view_model.dart';
 import 'package:vivarium/post/view_models/update_post_view_model.dart';
 import 'package:vivarium/post/views/post_screen.dart';
 import 'package:vivarium/post/views/update_post_screen.dart';
+import 'package:vivarium/users/models/user_profile_model.dart';
+import 'package:vivarium/users/view_models/users_view_model.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const routeName = "home";
@@ -183,28 +185,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       )
                     : ListView.separated(
                         itemBuilder: ((context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 20,
-                            ),
-                            child: GestureDetector(
-                              onLongPress: () => _onLongPress(
-                                posts[index].id,
-                                posts[index].category,
-                                posts[index].title,
-                                posts[index].content,
-                                posts[index].photoList,
-                                posts[index].creatorUid,
-                              ),
-                              child: HomeContainer(
-                                category: posts[index].category,
-                                title: posts[index].title,
-                                content: posts[index].content,
-                                photoList: posts[index].photoList,
-                                uploadTime: posts[index].createdAt,
-                              ),
-                            ),
+                          return FutureBuilder<UserProfileModel>(
+                            future: ref
+                                .read(usersProvider.notifier)
+                                .getUserProfile(posts[index].creatorUid),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return const Center(
+                                    child: Text("Error loading user"));
+                              } else if (!snapshot.hasData) {
+                                return const Center(
+                                    child: Text("No user data"));
+                              } else {
+                                final userProfile = snapshot.data!;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 20,
+                                  ),
+                                  child: GestureDetector(
+                                    onLongPress: () => _onLongPress(
+                                      posts[index].id,
+                                      posts[index].category,
+                                      posts[index].title,
+                                      posts[index].content,
+                                      posts[index].photoList,
+                                      posts[index].creatorUid,
+                                    ),
+                                    child: HomeContainer(
+                                      category: posts[index].category,
+                                      title: posts[index].title,
+                                      content: posts[index].content,
+                                      photoList: posts[index].photoList,
+                                      uploadTime: posts[index].createdAt,
+                                      writer: userProfile.email.split('@')[0],
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
                           );
                         }),
                         separatorBuilder: (context, index) => Container(

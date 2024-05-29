@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class HomeContainer extends StatelessWidget {
-  final String category, title, content;
+  final String category, title, content, writer;
   final int uploadTime;
   final List<String>? photoList;
   const HomeContainer({
@@ -11,6 +11,7 @@ class HomeContainer extends StatelessWidget {
     required this.title,
     required this.content,
     required this.uploadTime,
+    required this.writer,
     this.photoList,
   });
 
@@ -65,6 +66,14 @@ class HomeContainer extends StatelessWidget {
               children: [
                 const SizedBox(
                   width: 5,
+                ),
+                Text(
+                  writer,
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   category,
