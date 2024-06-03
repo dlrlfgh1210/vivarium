@@ -10,6 +10,9 @@ import 'package:vivarium/home_container.dart';
 import 'package:vivarium/post/view_models/delete_post_view_model.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
 import 'package:vivarium/post/view_models/update_post_view_model.dart';
+
+import 'package:vivarium/post/views/post_detail_screen.dart';
+
 import 'package:vivarium/post/views/post_screen.dart';
 import 'package:vivarium/post/views/update_post_screen.dart';
 import 'package:vivarium/users/models/user_profile_model.dart';
@@ -207,12 +210,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     child: Text("No user data"));
                               } else {
                                 final userProfile = snapshot.data!;
+                                final post = posts[index]; // Add this line
+
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 30,
                                     vertical: 20,
                                   ),
                                   child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              PostDetailScreen(
+                                                  postId: post
+                                                      .id), // Use post.id here
+                                        ),
+                                      );
+                                    },
                                     onLongPress: () => _onLongPress(
                                       posts[index].id,
                                       posts[index].category,
