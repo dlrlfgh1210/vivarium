@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vivarium/authentication/view_models/sign_up_view_model.dart';
-import 'package:vivarium/authentication/views/auth_container.dart';
+import 'package:vivarium/authentication/widgets/auth_container.dart';
 import 'package:vivarium/authentication/views/log_in_screen.dart';
-import 'package:vivarium/change_color_button.dart';
+import 'package:vivarium/authentication/widgets/change_color_button.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   static const routeName = "SignUp";

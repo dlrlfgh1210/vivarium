@@ -4,8 +4,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vivarium/camera_screen.dart';
-import 'package:vivarium/post/views/update_post_category.dart';
+import 'package:vivarium/post/views/camera_screen.dart';
+import 'package:vivarium/post/views/widgets/update_post_category.dart';
 
 class UpdatePostScreen extends ConsumerStatefulWidget {
   static const routeName = "UpdatePost";

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vivarium/home_screen.dart';
+import 'package:vivarium/home/views/home_screen.dart';
 import 'package:vivarium/more_screen.dart';
 import 'package:vivarium/navigation/nav_tab.dart';
 import 'package:vivarium/search/views/search_screen.dart';

@@ -3,7 +3,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/authentication/views/log_in_screen.dart';
 import 'package:vivarium/authentication/views/sign_up_screen.dart';
-import 'package:vivarium/home_screen.dart';
+import 'package:vivarium/home/views/home_screen.dart';
 import 'package:vivarium/more_screen.dart';
 import 'package:vivarium/navigation/main_navigation_screen.dart';
 import 'package:vivarium/post/views/post_screen.dart';

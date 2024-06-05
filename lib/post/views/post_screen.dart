@@ -6,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vivarium/camera_screen.dart';
-import 'package:vivarium/home_screen.dart';
+import 'package:vivarium/post/views/camera_screen.dart';
+import 'package:vivarium/home/views/home_screen.dart';
 import 'package:vivarium/post/view_models/create_post_view_model.dart';
-import 'package:vivarium/post/views/post_category.dart';
+import 'package:vivarium/post/views/widgets/post_category.dart';
 
 class PostScreen extends ConsumerStatefulWidget {
   static const routeName = "Post";
