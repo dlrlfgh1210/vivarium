@@ -1,8 +1,12 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/post/models/comment_model.dart';
 import 'package:vivarium/post/view_models/comment_view_model.dart';
 import 'package:vivarium/post/view_models/post_detail_view_model.dart';
+import 'package:vivarium/post/views/widgets/comment_input_field.dart';
+import 'package:vivarium/post/views/widgets/comment_section.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   final String postId;
@@ -27,12 +31,21 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     super.dispose();
   }
 
-  Future<void> _addComment() async {
+  Future<void> _addComment(String content) async {
+    final currentUser = ref.read(authRepository).user;
+    final currentUserEmail = currentUser?.email ?? '';
+    final currentUserUid = currentUser?.uid ?? '';
+
+    if (currentUser == null) {
+      return;
+    }
+
     final comment = CommentModel(
-      id: '', // ID는 Firestore에서 자동 생성됨
+      id: '',
       postId: widget.postId,
-      content: _commentController.text,
-      creatorUid: 'creatorUid', // 실제 사용자 UID로 교체
+      content: content,
+      creatorUid: currentUserUid,
+      creatorEmail: currentUserEmail,
       createdAt: DateTime.now().millisecondsSinceEpoch,
     );
     await ref.read(commentProvider(widget.postId).notifier).addComment(comment);
@@ -42,59 +55,99 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final postDetail = ref.watch(postDetailProvider(widget.postId));
-
+    final comments = ref.watch(commentProvider(widget.postId));
     return postDetail.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) =>
           const Center(child: Text('Error loading post details')),
       data: (post) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(post.title),
-          ),
           body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(post.category),
-                Text(post.title),
-                Text(post.content),
-                ...post.photoList.map((photo) => Image.network(photo)),
-                // Comments section
-                TextField(
-                  controller: _commentController,
-                  decoration: const InputDecoration(labelText: 'Add a comment'),
-                ),
-                ElevatedButton(
-                  onPressed: _addComment,
-                  child: const Text('Submit'),
-                ),
-                // Display comments
-                Consumer(
-                  builder: (context, watch, child) {
-                    final comments = ref.watch(commentProvider(widget.postId));
-                    return comments.when(
-                      loading: () => const CircularProgressIndicator(),
-                      error: (error, stack) =>
-                          const Text('Error loading comments'),
-                      data: (comments) {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: comments.length,
-                          itemBuilder: (context, index) {
-                            final comment = comments[index];
-                            return ListTile(
-                              title: Text(comment.content),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 50),
+                  Stack(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.green,
+                        ),
+                        child: Center(
+                          child: Text(
+                            post.category,
+                            style: const TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    post.title,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 23,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  const SizedBox(
+                    width: 500,
+                    child: Divider(
+                      color: Colors.grey,
+                      thickness: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DottedBorder(
+                    borderType: BorderType.RRect,
+                    color: Colors.grey,
+                    strokeWidth: 1,
+                    dashPattern: const [8, 4],
+                    radius: const Radius.circular(12),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      width: MediaQuery.of(context).size.width,
+                      child: Text(
+                        post.content,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 23,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  if (post.photoList.isNotEmpty)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      width: MediaQuery.of(context).size.width,
+                      child: PageView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: post.photoList.length,
+                        itemBuilder: (context, index) {
+                          return Image.network(
+                            post.photoList[index],
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      ),
+                    ),
+                  CommentSection(
+                    comments: comments.asData?.value ?? [],
+                    addComment: _addComment,
+                  ),
+                ],
+              ),
             ),
           ),
+          bottomSheet: CommentInputField(addComment: _addComment),
         );
       },
     );

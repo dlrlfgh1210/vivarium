@@ -3,6 +3,7 @@ class CommentModel {
   final String postId;
   final String content;
   final String creatorUid;
+  final String creatorEmail;
   final int createdAt;
 
   CommentModel({
@@ -10,6 +11,7 @@ class CommentModel {
     required this.postId,
     required this.content,
     required this.creatorUid,
+    required this.creatorEmail,
     required this.createdAt,
   });
 
@@ -19,6 +21,7 @@ class CommentModel {
       postId: json['postId'] as String,
       content: json['content'] as String,
       creatorUid: json['creatorUid'] as String,
+      creatorEmail: json['creatorEmail'] as String? ?? '',
       createdAt: json['createdAt'] as int,
     );
   }
@@ -29,6 +32,7 @@ class CommentModel {
       'postId': postId,
       'content': content,
       'creatorUid': creatorUid,
+      'creatorEmail': creatorEmail,
       'createdAt': createdAt,
     };
   }
@@ -38,6 +42,7 @@ class CommentModel {
     String? postId,
     String? content,
     String? creatorUid,
+    String? creatorEmail,
     int? createdAt,
   }) {
     return CommentModel(
@@ -45,6 +50,7 @@ class CommentModel {
       postId: postId ?? this.postId,
       content: content ?? this.content,
       creatorUid: creatorUid ?? this.creatorUid,
+      creatorEmail: creatorEmail ?? this.creatorEmail,
       createdAt: createdAt ?? this.createdAt,
     );
   }
