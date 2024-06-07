@@ -35,6 +35,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final currentUser = ref.read(authRepository).user;
     final currentUserEmail = currentUser?.email ?? '';
     final currentUserUid = currentUser?.uid ?? '';
+    final currentUserAvatarUrl = currentUser != null
+        ? "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2F${currentUser.uid}?alt=media"
+        : "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media";
 
     if (currentUser == null) {
       return;
@@ -46,6 +49,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       content: content,
       creatorUid: currentUserUid,
       creatorEmail: currentUserEmail,
+      creatorAvatarUrl: currentUserAvatarUrl,
       createdAt: DateTime.now().millisecondsSinceEpoch,
     );
     await ref.read(commentProvider(widget.postId).notifier).addComment(comment);

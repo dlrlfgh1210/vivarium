@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vivarium/post/models/comment_model.dart';
 
 class CommentList extends ConsumerStatefulWidget {
@@ -18,14 +17,37 @@ class CommentList extends ConsumerStatefulWidget {
 }
 
 class _CommentListState extends ConsumerState<CommentList> {
+  late String _avatarUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _avatarUrl = widget.comment.creatorAvatarUrl.isNotEmpty
+        ? widget.comment.creatorAvatarUrl
+        : "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media";
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: Colors.blue,
-        child: FaIcon(
-          FontAwesomeIcons.users,
-          color: Colors.white,
+      leading: CircleAvatar(
+        backgroundColor: Colors.white,
+        radius: 18,
+        child: ClipOval(
+          child: Image.network(
+            _avatarUrl,
+            fit: BoxFit.cover,
+            width: 36,
+            height: 36,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.network(
+                "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media",
+                fit: BoxFit.cover,
+                width: 36,
+                height: 36,
+              );
+            },
+          ),
         ),
       ),
       title: Text(

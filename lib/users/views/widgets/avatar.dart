@@ -44,10 +44,12 @@ class Avatar extends ConsumerWidget {
             )
           : CircleAvatar(
               radius: 30,
+              backgroundColor: Colors.white,
               foregroundImage: hasAvatar
                   ? NetworkImage(
                       "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2F$uid?alt=media&haha=${DateTime.now().toString()}")
-                  : null,
+                  : const NetworkImage(
+                      "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media"),
             ),
     );
   }

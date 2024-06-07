@@ -1,18 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:vivarium/authentication/repos/authentication_repo.dart';
+import 'package:http/http.dart' as http;
 
-class CommentInputField extends StatefulWidget {
+class CommentInputField extends ConsumerStatefulWidget {
   final Function(String) addComment;
 
-  const CommentInputField({super.key, required this.addComment});
+  const CommentInputField({
+    super.key,
+    required this.addComment,
+  });
 
   @override
-  State<CommentInputField> createState() => _CommentInputFieldState();
+  ConsumerState<CommentInputField> createState() => _CommentInputFieldState();
 }
 
-class _CommentInputFieldState extends State<CommentInputField> {
+class _CommentInputFieldState extends ConsumerState<CommentInputField> {
   bool _isWriting = false;
   TextEditingController commentController = TextEditingController();
+
+  String avatarUrl =
+      "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media";
+
+  @override
+  void initState() {
+    super.initState();
+    loadAvatar();
+  }
+
+  void loadAvatar() async {
+    final currentUser = ref.read(authRepository).user;
+    if (currentUser != null) {
+      final avatarTestUrl =
+          "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2F${currentUser.uid}?alt=media";
+      var response = await http.head(Uri.parse(avatarTestUrl));
+      if (response.statusCode == 200) {
+        setState(() {
+          avatarUrl = avatarTestUrl;
+        });
+      }
+    }
+  }
 
   void _handleAddComment() {
     if (_isWriting) {
@@ -44,7 +73,8 @@ class _CommentInputFieldState extends State<CommentInputField> {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: Colors.grey.shade500,
+            backgroundColor: Colors.white,
+            backgroundImage: NetworkImage(avatarUrl),
           ),
           const SizedBox(width: 10),
           Expanded(
