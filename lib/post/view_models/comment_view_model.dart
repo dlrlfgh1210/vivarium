@@ -12,18 +12,22 @@ class CommentViewModel extends StateNotifier<AsyncValue<List<CommentModel>>> {
   }
 
   Future<void> loadComments() async {
-    try {
-      List<CommentModel> comments = await _repository.getComments(postId);
-      state = AsyncValue.data(comments);
-    } catch (e) {}
+    List<CommentModel> comments = await _repository.getComments(postId);
+    state = AsyncValue.data(comments);
   }
 
   Future<void> addComment(CommentModel comment) async {
-    try {
-      await _repository.addComment(comment);
-      state.whenData(
-          (comments) => state = AsyncValue.data([...comments, comment]));
-    } catch (e) {}
+    await _repository.addComment(comment);
+    state.whenData(
+        (comments) => state = AsyncValue.data([...comments, comment]));
+  }
+
+  Future<void> addReply(String commentId, CommentModel reply) async {
+    await _repository.addReply(commentId, reply);
+  }
+
+  Future<List<CommentModel>> getReplies(String commentId) async {
+    return await _repository.getReplies(commentId);
   }
 }
 
@@ -34,3 +38,5 @@ final commentProvider = StateNotifierProvider.family<CommentViewModel,
     return CommentViewModel(postId, repository);
   },
 );
+
+final bottomSheetVisibleProvider = StateProvider<bool>((ref) => true);

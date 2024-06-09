@@ -127,7 +127,7 @@ class HomeContainer extends StatelessWidget {
                           },
                           separatorBuilder: (context, index) {
                             return const SizedBox(
-                              height: 5,
+                              width: 10,
                             );
                           },
                         ),

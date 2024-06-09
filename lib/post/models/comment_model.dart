@@ -6,6 +6,7 @@ class CommentModel {
   final String creatorEmail;
   final String creatorAvatarUrl;
   final int createdAt;
+  final List<CommentModel> replies;
 
   CommentModel({
     required this.id,
@@ -15,6 +16,7 @@ class CommentModel {
     required this.creatorEmail,
     required this.creatorAvatarUrl,
     required this.createdAt,
+    this.replies = const [],
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,11 @@ class CommentModel {
       creatorEmail: json['creatorEmail'] as String? ?? '',
       creatorAvatarUrl: json['creatorAvatarUrl'] as String? ?? '',
       createdAt: json['createdAt'] as int,
+      replies: (json['replies'] as List<dynamic>?)
+              ?.map((reply) =>
+                  CommentModel.fromJson(reply as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -38,6 +45,7 @@ class CommentModel {
       'creatorEmail': creatorEmail,
       'creatorAvatarUrl': creatorAvatarUrl,
       'createdAt': createdAt,
+      'replies': replies.map((reply) => reply.toJson()).toList(),
     };
   }
 
@@ -49,6 +57,7 @@ class CommentModel {
     String? creatorEmail,
     String? creatorAvatarUrl,
     int? createdAt,
+    List<CommentModel>? replies,
   }) {
     return CommentModel(
       id: id ?? this.id,
@@ -58,6 +67,7 @@ class CommentModel {
       creatorEmail: creatorEmail ?? this.creatorEmail,
       creatorAvatarUrl: creatorAvatarUrl ?? this.creatorAvatarUrl,
       createdAt: createdAt ?? this.createdAt,
+      replies: replies ?? this.replies,
     );
   }
 }

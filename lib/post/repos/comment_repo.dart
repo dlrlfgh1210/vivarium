@@ -9,6 +9,12 @@ class CommentRepository {
     await _db.collection('comments').add(comment.toJson());
   }
 
+  Future<void> addReply(String commentId, CommentModel reply) async {
+    await _db.collection('comments').doc(commentId).update({
+      'replies': FieldValue.arrayUnion([reply.toJson()])
+    });
+  }
+
   Future<List<CommentModel>> getComments(String postId) async {
     final querySnapshot = await _db
         .collection('comments')
@@ -19,6 +25,18 @@ class CommentRepository {
       final data = doc.data();
       return CommentModel.fromJson(data).copyWith(id: doc.id);
     }).toList();
+  }
+
+  Future<List<CommentModel>> getReplies(String commentId) async {
+    final docSnapshot = await _db.collection('comments').doc(commentId).get();
+    final data = docSnapshot.data();
+    if (data != null && data['replies'] != null) {
+      return (data['replies'] as List<dynamic>)
+          .map((reply) => CommentModel.fromJson(reply))
+          .toList();
+    } else {
+      return [];
+    }
   }
 }
 
