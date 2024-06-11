@@ -8,8 +8,6 @@ import 'package:vivarium/post/view_models/post_detail_view_model.dart';
 import 'package:vivarium/post/views/widgets/comment_input_field.dart';
 import 'package:vivarium/post/views/widgets/comment_section.dart';
 
-final bottomSheetVisibleProvider = StateProvider<bool>((ref) => true);
-
 class PostDetailScreen extends ConsumerStatefulWidget {
   final String postId;
   const PostDetailScreen({Key? key, required this.postId}) : super(key: key);
