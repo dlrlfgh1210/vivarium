@@ -44,7 +44,6 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
   @override
   void initState() {
     super.initState();
-    // 초기 이미지 리스트 설정
     if (widget.initialPhotoList != null) {
       photoList =
           widget.initialPhotoList!.map((file) => XFile(file.path)).toList();
@@ -152,7 +151,7 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                         minLines: null,
                         controller: widget.titleController,
                         decoration: const InputDecoration(
-                          hintText: '제목(필수) - 30자 내외로 적어주세요',
+                          hintText: '제목을 30자 내외로 적어주세요',
                           border: InputBorder.none,
                         ),
                       ),
@@ -184,8 +183,7 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                         minLines: null,
                         controller: widget.contentController,
                         decoration: const InputDecoration(
-                          hintText:
-                              '본문(필수) \n-최소 1자~1000자 이내 작성할 수 있어요. \n-게시물이 다른 유저로부터 신고를 받거나 운영 \n정책에 맞지 않을 경우 숨김 처리 돼요.',
+                          hintText: '자유롭게 작성해주세요.',
                           border: InputBorder.none,
                         ),
                       ),
@@ -204,8 +202,8 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text("다시 할려고??"),
-                            content: const Text("Gallery or Photo"),
+                            title: const Text("어떻게 하시겠습니까?"),
+                            content: const Text("갤러리 또는 카메라"),
                             actions: [
                               TextButton(
                                 onPressed: () async {
@@ -287,8 +285,8 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               clipBehavior: Clip.hardEdge,
-                              height: 80,
-                              width: 80,
+                              height: 90,
+                              width: 90,
                               child: photoList[index].path.startsWith('http')
                                   ? Image.network(
                                       photoList[index].path,
@@ -303,6 +301,7 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                               top: 0,
                               right: 0,
                               child: IconButton(
+                                color: Colors.white,
                                 icon: const Icon(Icons.close),
                                 onPressed: () {
                                   setState(() {
@@ -314,6 +313,10 @@ class _UpdatePostScreenState extends ConsumerState<UpdatePostScreen> {
                           ],
                         );
                       },
+                      padding: const EdgeInsets.only(
+                        top: 50,
+                        left: 10,
+                      ),
                     ),
                   ),
                 ],

@@ -10,9 +10,7 @@ import 'package:vivarium/home/views/home_container.dart';
 import 'package:vivarium/post/view_models/delete_post_view_model.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
 import 'package:vivarium/post/view_models/update_post_view_model.dart';
-
 import 'package:vivarium/post/views/post_detail_screen.dart';
-
 import 'package:vivarium/post/views/post_screen.dart';
 import 'package:vivarium/post/views/update_post_screen.dart';
 import 'package:vivarium/users/models/user_profile_model.dart';
@@ -49,29 +47,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     String content,
     List<String>? photoList,
     String creatorUid,
-  ) {
+  ) async {
     final currentUserUid = ref.read(authRepository).user?.uid;
 
     if (currentUserUid != creatorUid) {
       return;
     }
     final pickedText = [
-      '비바리움 질문',
+      '질문',
       '이름이 궁금해요',
-      '내 아쿠아리움 자랑',
-      '비바리움 팁',
-      '수초나눔',
+      '내 자연 자랑',
+      '나만의 팁',
+      '나눔',
       '자유',
       '사용후기',
     ];
     final initialCategoryIndex = pickedText.indexOf(category);
 
-    showDialog(
+    final result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("삭제 확인"),
-          content: const Text("이 항목을 삭제하시겠습니까?"),
+          title: const Text("어떻게 하시겠습니까?"),
           actions: [
             TextButton(
               onPressed: () async {
@@ -80,7 +77,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       context,
                     );
                 if (context.mounted) {
-                  context.pop();
+                  context.pop(true);
                 }
               },
               child: const Text("삭제"),
@@ -126,12 +123,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   await ref.read(postProvider.notifier).refetch();
                 }
+
+                Navigator.pop(context, false);
               },
               child: const Text("수정"),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(false);
               },
               child: const Text("취소"),
             ),
@@ -139,6 +138,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       },
     );
+
+    if (result == null || result == false) {
+    } else if (result == true) {
+      await ref.read(postProvider.notifier).refetch();
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -152,7 +156,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: CircularProgressIndicator(),
           ),
           error: (error, stackTrace) => const Center(
-            child: Text("Could not load moods."),
+            child: Text("다시 확인 해주세요"),
           ),
           data: (posts) {
             return Scaffold(
@@ -186,7 +190,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: posts.isEmpty
                     ? const Center(
                         child: Text(
-                          "No Data",
+                          "글이 없습니다",
                           style: TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
                         ),

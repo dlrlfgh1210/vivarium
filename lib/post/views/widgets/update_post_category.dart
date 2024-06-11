@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 List<String> pickedText = [
-  '비바리움 질문',
+  '질문',
   '이름이 궁금해요',
-  '내 아쿠아리움 자랑',
-  '비바리움 팁',
-  '수초나눔',
+  '내 자연 자랑',
+  '나만의 팁',
+  '나눔',
   '자유',
   '사용후기',
 ];

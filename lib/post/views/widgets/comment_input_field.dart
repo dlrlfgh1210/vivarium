@@ -86,7 +86,7 @@ class _CommentInputFieldState extends ConsumerState<CommentInputField> {
               textInputAction: TextInputAction.newline,
               cursorColor: Theme.of(context).primaryColor,
               decoration: InputDecoration(
-                hintText: "Add a comment...",
+                hintText: "댓글 달아주세요",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,

@@ -48,7 +48,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text("🌿Soocho🌿"),
+          title: const Text("🌿내방에 자연🌿"),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(
@@ -63,7 +63,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   height: 40,
                 ),
                 const Text(
-                  "Join!",
+                  "회원가입",
                   style: TextStyle(
                     fontSize: 25,
                     color: Colors.black,
@@ -75,7 +75,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ),
                 AuthContainer(
                   secretAuth: false,
-                  authHint: 'Email',
+                  authHint: '이메일을 입력하세요',
                   onSaved: (newValue) {
                     if (newValue != null) {
                       formData['email'] = newValue;
@@ -83,7 +83,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                   validator: (value) {
                     if (value != null && value.isEmpty) {
-                      return "Plase write your email";
+                      return "다시 입력하세요";
                     }
                     return null;
                   },
@@ -93,7 +93,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ),
                 AuthContainer(
                   secretAuth: true,
-                  authHint: 'Password',
+                  authHint: '비밀번호를 입력하세요',
                   onSaved: (newValue) {
                     if (newValue != null) {
                       formData['password'] = newValue;
@@ -101,7 +101,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                   validator: (value) {
                     if (value != null && value.isEmpty) {
-                      return "Plase write your password";
+                      return "다시 입력하세요";
                     }
                     return null;
                   },
@@ -113,7 +113,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   onTap: _onCreateTap,
                   child: ChangeColorButton(
                     disabled: ref.watch(signUpProvider).isLoading,
-                    buttonName: 'Create Account',
+                    buttonName: '계정 만들기',
                     buttonSize: 1,
                   ),
                 ),
@@ -122,7 +122,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   onTap: _onLogInTap,
                   child: const ChangeColorButton(
                     disabled: false,
-                    buttonName: 'Log in',
+                    buttonName: '로그인',
                     buttonSize: 1,
                   ),
                 ),

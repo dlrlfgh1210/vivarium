@@ -49,7 +49,10 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text("🌿Soocho🌿"),
+          title: const Text(
+            "🌿내방에 자연🌿",
+            style: TextStyle(fontSize: 25, color: Colors.black),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(
@@ -76,7 +79,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                 ),
                 AuthContainer(
                   secretAuth: false,
-                  authHint: 'Email',
+                  authHint: '이메일을 입력하세요',
                   onSaved: (newValue) {
                     if (newValue != null) {
                       formData['email'] = newValue;
@@ -84,7 +87,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                   },
                   validator: (value) {
                     if (value != null && value.isEmpty) {
-                      return "Plase write your email";
+                      return "다시 입력하세요";
                     }
                     return null;
                   },
@@ -94,7 +97,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                 ),
                 AuthContainer(
                   secretAuth: true,
-                  authHint: 'Password',
+                  authHint: '비밀번호를 입력하세요',
                   onSaved: (newValue) {
                     if (newValue != null) {
                       formData['password'] = newValue;
@@ -102,7 +105,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                   },
                   validator: (value) {
                     if (value != null && value.isEmpty) {
-                      return "Plase write your password";
+                      return "다시 입력하세요";
                     }
                     return null;
                   },
@@ -114,7 +117,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                   onTap: _onSubmitTap,
                   child: ChangeColorButton(
                     disabled: ref.watch(logInProvider).isLoading,
-                    buttonName: 'Enter',
+                    buttonName: '다음',
                     buttonSize: 1,
                   ),
                 ),
@@ -123,7 +126,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
                   onTap: _onSignUpTap,
                   child: const ChangeColorButton(
                     disabled: false,
-                    buttonName: 'Create an account',
+                    buttonName: '계정 만들기',
                     buttonSize: 1,
                   ),
                 ),

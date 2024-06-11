@@ -30,7 +30,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text("Are you want to log out?"),
+                  title: const Text("로그아웃 하시겠습니까?"),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),

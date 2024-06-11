@@ -169,7 +169,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                 TextField(
                   controller: _replyController,
                   decoration: const InputDecoration(
-                    hintText: '답글을 입력하세요...',
+                    hintText: '답글을 입력하세요',
                   ),
                 ),
                 Row(

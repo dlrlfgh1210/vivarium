@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 List<String> pickedText = [
-  '비바리움 질문',
+  '질문',
   '이름이 궁금해요',
-  '내 아쿠아리움 자랑',
-  '비바리움 팁',
-  '수초나눔',
+  '내 자연 자랑',
+  '나만의 팁',
+  '나눔',
   '자유',
   '사용후기',
 ];
@@ -37,7 +37,7 @@ class _PostCategoryState extends State<PostCategory> {
             setState(() {
               selectedIndex = i;
             });
-            widget.onCategorySelected(selectedIndex); // 선택한 인덱스를 콜백 함수로 전달
+            widget.onCategorySelected(selectedIndex);
             Navigator.pop(context);
           },
           child: Text(
@@ -55,7 +55,7 @@ class _PostCategoryState extends State<PostCategory> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          pickedText[selectedIndex], // 선택한 카테고리 텍스트 표시
+          pickedText[selectedIndex],
           style: const TextStyle(
             color: Colors.black,
             fontSize: 20,

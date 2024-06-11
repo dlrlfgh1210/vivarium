@@ -144,7 +144,7 @@ class _CameraScreenState extends State<CameraScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Initializing...",
+                    "잠시만 기다려 주세요...",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -158,7 +158,7 @@ class _CameraScreenState extends State<CameraScreen>
                     height: 20,
                   ),
                   const Text(
-                    "Please grant the following permissions:",
+                    "다음 권한을 부여하십시오:",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
