@@ -1,0 +1,9 @@
+{
+  "name": "vivarium",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'Run your build script here'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
