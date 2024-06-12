@@ -42,7 +42,7 @@ dependencies:
   go_router: ^12.1.0
   riverpod: ^2.4.5
   flutter_riverpod: ^2.4.5
-  cloud_functions: ^4.5.3
+  cloud_functions: ^4.6.0
   font_awesome_flutter: ^10.4.0
   dotted_border: ^2.1.0
   intl: ^0.18.1
