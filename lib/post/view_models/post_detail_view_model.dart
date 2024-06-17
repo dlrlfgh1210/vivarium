@@ -12,10 +12,8 @@ class PostDetailViewModel extends StateNotifier<AsyncValue<PostDetailModel>> {
   }
 
   Future<void> loadPostDetail() async {
-    try {
-      final detail = await _repository.getPostDetail(postId);
-      state = AsyncValue.data(detail);
-    } catch (e) {}
+    final detail = await _repository.getPostDetail(postId);
+    state = AsyncValue.data(detail);
   }
 }
 

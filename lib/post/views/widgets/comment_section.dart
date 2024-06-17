@@ -9,10 +9,10 @@ class CommentSection extends ConsumerStatefulWidget {
   final Function(String) addComment;
 
   const CommentSection({
-    Key? key,
+    super.key,
     required this.comments,
     required this.addComment,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<CommentSection> createState() => _CommentSectionState();

@@ -17,11 +17,11 @@ class UpdatePostCategory extends StatefulWidget {
   final int initialIndex;
 
   const UpdatePostCategory({
-    Key? key,
+    super.key,
     required this.onCategoryEdited,
     required this.categoryController,
     required this.initialIndex,
-  }) : super(key: key);
+  });
 
   @override
   State<UpdatePostCategory> createState() => _UpdatePostCategoryState();

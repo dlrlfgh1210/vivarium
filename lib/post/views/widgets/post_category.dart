@@ -15,9 +15,9 @@ class PostCategory extends StatefulWidget {
   final ValueChanged<int> onCategorySelected;
 
   const PostCategory({
-    Key? key,
+    super.key,
     required this.onCategorySelected,
-  }) : super(key: key);
+  });
 
   @override
   State<PostCategory> createState() => _PostCategoryState();

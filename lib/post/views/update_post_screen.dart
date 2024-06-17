@@ -20,7 +20,7 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
   final String postId;
   final int initialCategoryIndex;
   const UpdatePostScreen({
-    Key? key,
+    super.key,
     required this.categoryController,
     required this.titleController,
     required this.contentController,
@@ -30,7 +30,7 @@ class UpdatePostScreen extends ConsumerStatefulWidget {
     this.initialPhotoList,
     required this.postId,
     required this.initialCategoryIndex,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<UpdatePostScreen> createState() => _UpdatePostScreenState();

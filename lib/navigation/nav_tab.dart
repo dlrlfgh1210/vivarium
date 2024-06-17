@@ -39,7 +39,7 @@ class NavTab extends StatelessWidget {
               Text(
                 text,
                 style: TextStyle(
-                  color: isSelected == 0 ? Colors.white : Colors.black,
+                  color: isSelected ? Colors.black : Colors.grey,
                 ),
               )
             ],

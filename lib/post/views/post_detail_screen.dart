@@ -10,7 +10,7 @@ import 'package:vivarium/post/views/widgets/comment_section.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   final String postId;
-  const PostDetailScreen({Key? key, required this.postId}) : super(key: key);
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
   ConsumerState<PostDetailScreen> createState() => _PostDetailScreenState();

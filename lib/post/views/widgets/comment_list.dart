@@ -11,10 +11,10 @@ class CommentList extends ConsumerStatefulWidget {
   final String? currentUserEmail;
 
   const CommentList({
-    Key? key,
+    super.key,
     required this.comment,
     required this.currentUserEmail,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<CommentList> createState() => _CommentListState();

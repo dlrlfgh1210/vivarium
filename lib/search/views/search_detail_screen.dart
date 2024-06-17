@@ -1,16 +1,14 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vivarium/search/models/movie_detail_model.dart';
-import 'package:vivarium/search/services/api_service.dart';
+import 'package:vivarium/search/models/nature_model.dart';
 
 class SearchDetailScreen extends StatefulWidget {
-  final String title, posterPath;
-  final int id;
+  final Nature nature;
+
   const SearchDetailScreen({
     super.key,
-    required this.title,
-    required this.posterPath,
-    required this.id,
+    required this.nature,
   });
 
   @override
@@ -18,57 +16,55 @@ class SearchDetailScreen extends StatefulWidget {
 }
 
 class _SearchDetailScreenState extends State<SearchDetailScreen> {
-  late Future<MovieDetailModel> details;
   late SharedPreferences favorites;
   bool isLiked = false;
 
   Future initFavorites() async {
     favorites = await SharedPreferences.getInstance();
-    final likedMovies = favorites.getStringList('likedMovies');
-    if (likedMovies != null && likedMovies.contains(widget.id.toString())) {
+    final likedNatures = favorites.getStringList('likedNatures');
+    if (likedNatures != null &&
+        likedNatures.contains(widget.nature.id.toString())) {
       setState(() {
         isLiked = true;
       });
     } else {
-      await favorites.setStringList('likedMovies', []);
+      await favorites.setStringList('likedNatures', []);
     }
   }
 
   @override
   void initState() {
     super.initState();
-    details = ApiService.getMovieById(widget.id);
     initFavorites();
   }
 
   void onHeartTap() async {
-    final likedMovies = favorites.getStringList('likedMovies');
-    if (likedMovies != null) {
+    final likedNatures = favorites.getStringList('likedNatures');
+    if (likedNatures != null) {
       setState(() {
         if (isLiked) {
-          likedMovies.remove(widget.id.toString());
+          likedNatures.remove(widget.nature.id.toString());
         } else {
-          likedMovies.add(widget.id.toString());
+          likedNatures.add(widget.nature.id.toString());
         }
         isLiked = !isLiked;
       });
-      await favorites.setStringList('likedMovies', likedMovies);
+      await favorites.setStringList('likedNatures', likedNatures);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final nature = widget.nature;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'Back to list',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
         actions: [
           IconButton(
             onPressed: onHeartTap,
@@ -76,95 +72,66 @@ class _SearchDetailScreenState extends State<SearchDetailScreen> {
               isLiked ? Icons.favorite : Icons.favorite_outline,
               color: Colors.red,
             ),
-            iconSize: 40,
+            iconSize: 30,
           ),
         ],
       ),
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.network(
-            'https://image.tmdb.org/t/p/w500${widget.posterPath}',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            color: Colors.black.withOpacity(0.4),
-            colorBlendMode: BlendMode.darken,
+          Center(
+            child: Image.network(
+              nature.imageUrl,
+              fit: BoxFit.cover,
+              height: 300,
+              width: MediaQuery.of(context).size.width,
+            ),
           ),
-          Positioned(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 300,
-                bottom: 10,
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+            child: Text(
+              nature.title,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Text(widget.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.w700,
-                        )),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+            child: Text(
+              "💡제품 설명💡",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DottedBorder(
+              borderType: BorderType.RRect,
+              color: Colors.grey,
+              strokeWidth: 1,
+              dashPattern: const [8, 4],
+              radius: const Radius.circular(12),
+              child: Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    nature.description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  FutureBuilder(
-                      future: details,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  for (int i = 0;
-                                      i < snapshot.data!.genres.length;
-                                      i++)
-                                    Text(
-                                      '${snapshot.data!.genres[i]['name']}${i == snapshot.data!.genres.length - 1 ? '' : ', '}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white70,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'Storyline',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                child: Text(
-                                  snapshot.data!.overview,
-                                  maxLines: 10,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        return const Text("...");
-                      }),
-                ],
+                ),
               ),
             ),
           ),
