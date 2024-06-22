@@ -53,6 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (currentUserUid != creatorUid) {
       return;
     }
+
     final pickedText = [
       '질문',
       '이름이 궁금해요',
@@ -159,6 +160,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Text("다시 확인 해주세요"),
           ),
           data: (posts) {
+            // Filter out reported posts
+            final currentUserUid = ref.read(authRepository).user?.uid;
+            final filteredPosts = posts
+                .where((post) => !post.reportedBy.contains(currentUserUid))
+                .toList();
+
             return Scaffold(
               appBar: AppBar(
                 title: Center(
@@ -187,7 +194,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onRefresh: () async {
                   await ref.read(postProvider.notifier).refetch();
                 },
-                child: posts.isEmpty
+                child: filteredPosts.isEmpty
                     ? const Center(
                         child: Text(
                           "글이 없습니다",
@@ -200,7 +207,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           return FutureBuilder<UserProfileModel>(
                             future: ref
                                 .read(usersProvider.notifier)
-                                .getUserProfile(posts[index].creatorUid),
+                                .getUserProfile(
+                                    filteredPosts[index].creatorUid),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -214,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     child: Text("No user data"));
                               } else {
                                 final userProfile = snapshot.data!;
-                                final post = posts[index];
+                                final post = filteredPosts[index];
 
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -234,19 +242,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       );
                                     },
                                     onLongPress: () => _onLongPress(
-                                      posts[index].id,
-                                      posts[index].category,
-                                      posts[index].title,
-                                      posts[index].content,
-                                      posts[index].photoList,
-                                      posts[index].creatorUid,
+                                      filteredPosts[index].id,
+                                      filteredPosts[index].category,
+                                      filteredPosts[index].title,
+                                      filteredPosts[index].content,
+                                      filteredPosts[index].photoList,
+                                      filteredPosts[index].creatorUid,
                                     ),
                                     child: HomeContainer(
-                                      category: posts[index].category,
-                                      title: posts[index].title,
-                                      content: posts[index].content,
-                                      photoList: posts[index].photoList,
-                                      uploadTime: posts[index].createdAt,
+                                      postId: filteredPosts[index].id,
+                                      category: filteredPosts[index].category,
+                                      title: filteredPosts[index].title,
+                                      content: filteredPosts[index].content,
+                                      photoList: filteredPosts[index].photoList,
+                                      uploadTime:
+                                          filteredPosts[index].createdAt,
                                       writer: userProfile.email.split('@')[0],
                                     ),
                                   ),
@@ -258,7 +268,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         separatorBuilder: (context, index) => Container(
                           height: 0,
                         ),
-                        itemCount: posts.length,
+                        itemCount: filteredPosts.length,
                       ),
               ),
             );

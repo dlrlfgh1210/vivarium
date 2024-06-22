@@ -106,7 +106,7 @@ class _SearchDetailScreenState extends State<SearchDetailScreen> {
               horizontal: 16,
             ),
             child: Text(
-              "💡제품 설명💡",
+              "💡설명💡",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

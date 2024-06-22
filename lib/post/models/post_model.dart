@@ -7,6 +7,7 @@ class PostModel {
   final String creator;
   final int createdAt;
   final List<String> photoList;
+  final List<String> reportedBy;
 
   const PostModel({
     required this.id,
@@ -17,6 +18,7 @@ class PostModel {
     required this.creator,
     required this.createdAt,
     required this.photoList,
+    this.reportedBy = const [],
   });
 
   PostModel.fromJson(Map<String, dynamic> json)
@@ -27,7 +29,8 @@ class PostModel {
         photoList = List<String>.from(json["photoList"]),
         creatorUid = json["creatorUid"],
         creator = json["creator"],
-        createdAt = json['createdAt'];
+        createdAt = json['createdAt'],
+        reportedBy = List<String>.from(json["reportedBy"] ?? []);
 
   Map<String, dynamic> toJson() {
     return {
@@ -35,10 +38,11 @@ class PostModel {
       'category': category,
       'title': title,
       'content': content,
-      'photoList': photoList,
-      "creatorUid": creatorUid,
-      "creator": creator,
+      'creatorUid': creatorUid,
+      'creator': creator,
       'createdAt': createdAt,
+      'photoList': photoList,
+      'reportedBy': reportedBy,
     };
   }
 
@@ -51,6 +55,7 @@ class PostModel {
     String? creator,
     int? createdAt,
     List<String>? photoList,
+    List<String>? reportedBy,
   }) {
     return PostModel(
       id: id ?? this.id,
@@ -61,6 +66,7 @@ class PostModel {
       creator: creator ?? this.creator,
       createdAt: createdAt ?? this.createdAt,
       photoList: photoList ?? this.photoList,
+      reportedBy: reportedBy ?? this.reportedBy,
     );
   }
 }

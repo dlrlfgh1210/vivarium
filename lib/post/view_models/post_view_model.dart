@@ -1,18 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/post/models/post_model.dart';
 import 'package:vivarium/post/repos/post_repo.dart';
 
 class PostViewModel extends AsyncNotifier<List<PostModel>> {
   late final PostRepository _postRepository;
   List<PostModel> _list = [];
-  int? lastItemCreatedAt;
 
-  Future<List<PostModel>> _fetchPosts({int? lastItemCreatedAt}) async {
-    final posts = await _postRepository.fetchPosts(
-      lastItemCreatedAt: lastItemCreatedAt ?? this.lastItemCreatedAt,
-    );
+  Future<List<PostModel>> _fetchPosts() async {
+    // final currentUser = ref.read(authRepository).user;
+    final posts = await _postRepository.fetchPosts();
     return posts;
   }
 
@@ -24,7 +23,8 @@ class PostViewModel extends AsyncNotifier<List<PostModel>> {
   @override
   FutureOr<List<PostModel>> build() async {
     _postRepository = ref.read(postRepo);
-    _list = await _fetchPosts();
+    final currentUser = ref.read(authRepository).user;
+    _list = await _postRepository.getFilteredPosts(currentUser!.uid);
     return _list;
   }
 
@@ -32,6 +32,14 @@ class PostViewModel extends AsyncNotifier<List<PostModel>> {
     final result = await _postRepository.searchPosts(query);
     _list = result;
     state = AsyncValue.data(_list);
+  }
+
+  Future<void> reportPost(String postId) async {
+    final currentUser = ref.read(authRepository).user;
+    if (currentUser != null) {
+      await _postRepository.reportPost(postId, currentUser.uid);
+      refetch();
+    }
   }
 }
 

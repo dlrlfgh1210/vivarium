@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:vivarium/post/view_models/post_view_model.dart';
 
-class HomeContainer extends StatelessWidget {
+class HomeContainer extends ConsumerStatefulWidget {
   final String category, title, content, writer;
   final int uploadTime;
   final List<String>? photoList;
+  final String postId;
+
   const HomeContainer({
     super.key,
     required this.category,
@@ -13,12 +18,89 @@ class HomeContainer extends StatelessWidget {
     required this.uploadTime,
     required this.writer,
     this.photoList,
+    required this.postId,
   });
+
+  @override
+  ConsumerState<HomeContainer> createState() => _HomeContainerState();
+}
+
+class _HomeContainerState extends ConsumerState<HomeContainer> {
+  late final List<String> _reportReasons;
+  late final Map<String, bool> _selectedReasons;
+
+  @override
+  void initState() {
+    super.initState();
+    _reportReasons = ['광고', '폭언/욕설/혐오 발언', '불법성 정보', '음란성 정보', '개인정보 노출'];
+    _selectedReasons = {for (var reason in _reportReasons) reason: false};
+  }
+
+  void _showReportBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '신고 이유',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ..._reportReasons.map((reason) {
+                    return CheckboxListTile(
+                      title: Text(reason),
+                      value: _selectedReasons[reason],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectedReasons[reason] = value ?? false;
+                        });
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // 모달 닫기
+                        },
+                        child: const Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          ref
+                              .read(postProvider.notifier)
+                              .reportPost(widget.postId);
+                          Navigator.of(context).pop(); // 모달 닫기
+                        },
+                        child: const Text('신고하기'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   String _getFormattedTime() {
     final DateTime now = DateTime.now();
     final DateTime uploadDateTime =
-        DateTime.fromMillisecondsSinceEpoch(uploadTime ~/ 1000);
+        DateTime.fromMillisecondsSinceEpoch(widget.uploadTime ~/ 1000);
     final Duration difference = now.difference(uploadDateTime);
 
     if (difference.inMinutes < 1) {
@@ -78,7 +160,7 @@ class HomeContainer extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          category,
+                          widget.category,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -88,7 +170,7 @@ class HomeContainer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      writer,
+                      widget.writer,
                       style: const TextStyle(
                         color: Colors.green,
                         fontSize: 20,
@@ -98,7 +180,7 @@ class HomeContainer extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  title,
+                  widget.title,
                   style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 23,
@@ -106,7 +188,7 @@ class HomeContainer extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  content,
+                  widget.content,
                   style: const TextStyle(
                     fontSize: 20,
                   ),
@@ -114,7 +196,7 @@ class HomeContainer extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                photoList != null && photoList!.isNotEmpty
+                widget.photoList != null && widget.photoList!.isNotEmpty
                     ? Container(
                         padding: const EdgeInsets.only(
                           bottom: 10,
@@ -123,7 +205,7 @@ class HomeContainer extends StatelessWidget {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           shrinkWrap: true,
-                          itemCount: photoList!.length,
+                          itemCount: widget.photoList!.length,
                           itemBuilder: (context, index) {
                             return Container(
                               decoration: BoxDecoration(
@@ -133,7 +215,7 @@ class HomeContainer extends StatelessWidget {
                               ),
                               clipBehavior: Clip.hardEdge,
                               child: Image.network(
-                                photoList![index],
+                                widget.photoList![index],
                                 fit: BoxFit.cover,
                                 height: 128,
                               ),
@@ -154,13 +236,25 @@ class HomeContainer extends StatelessWidget {
         const SizedBox(
           height: 15,
         ),
-        Text(
-          _getFormattedTime(),
-          style: TextStyle(
-            color: Colors.grey.shade700,
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _getFormattedTime(),
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            IconButton(
+              icon: const FaIcon(
+                FontAwesomeIcons.ellipsis,
+                size: 20,
+              ),
+              onPressed: _showReportBottomSheet,
+            ),
+          ],
         )
       ],
     );

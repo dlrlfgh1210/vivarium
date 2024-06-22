@@ -27,6 +27,26 @@ class _CommentListState extends ConsumerState<CommentList> {
   final TextEditingController _replyController = TextEditingController();
   late final CommentViewModel _commentViewModel;
 
+  final List<String> _reportReasons = [
+    '광고',
+    '폭언/욕설/혐오 발언',
+    '불법성 정보',
+    '음란성 정보',
+    '개인정보 노출'
+  ];
+  late Map<String, bool> _selectedReasons;
+
+  @override
+  void initState() {
+    super.initState();
+    _avatarUrl = widget.comment.creatorAvatarUrl.isNotEmpty
+        ? widget.comment.creatorAvatarUrl
+        : "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media";
+    _commentViewModel =
+        ref.read(commentProvider(widget.comment.postId).notifier);
+    _selectedReasons = {for (var reason in _reportReasons) reason: false};
+  }
+
   String _getFormattedTime() {
     final DateTime now = DateTime.now();
     final DateTime commentDateTime =
@@ -42,16 +62,6 @@ class _CommentListState extends ConsumerState<CommentList> {
     } else {
       return DateFormat('MM월 dd일').format(commentDateTime);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _avatarUrl = widget.comment.creatorAvatarUrl.isNotEmpty
-        ? widget.comment.creatorAvatarUrl
-        : "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media";
-    _commentViewModel =
-        ref.read(commentProvider(widget.comment.postId).notifier);
   }
 
   void _toggleReplying() {
@@ -98,6 +108,69 @@ class _CommentListState extends ConsumerState<CommentList> {
       _isReplying = false;
     });
     ref.read(bottomSheetVisibleProvider.notifier).state = true;
+  }
+
+  void _reportComment() {
+    _commentViewModel.reportComment(widget.comment.id);
+  }
+
+  void _showReportBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '신고 이유',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ..._reportReasons.map((reason) {
+                    return CheckboxListTile(
+                      title: Text(reason),
+                      value: _selectedReasons[reason],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectedReasons[reason] = value ?? false;
+                        });
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          _reportComment();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('신고하기'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -156,9 +229,12 @@ class _CommentListState extends ConsumerState<CommentList> {
               fontSize: 16,
             ),
           ),
-          trailing: const FaIcon(
-            FontAwesomeIcons.ellipsis,
-            size: 20,
+          trailing: IconButton(
+            icon: const FaIcon(
+              FontAwesomeIcons.ellipsis,
+              size: 20,
+            ),
+            onPressed: _showReportBottomSheet,
           ),
         ),
         if (_isReplying)

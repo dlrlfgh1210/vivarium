@@ -7,6 +7,7 @@ class CommentModel {
   final String creatorAvatarUrl;
   final int createdAt;
   final List<CommentModel> replies;
+  final List<String> reportedBy; // 신고한 사용자 ID 목록 추가
 
   CommentModel({
     required this.id,
@@ -17,6 +18,7 @@ class CommentModel {
     required this.creatorAvatarUrl,
     required this.createdAt,
     this.replies = const [],
+    this.reportedBy = const [],
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class CommentModel {
                   CommentModel.fromJson(reply as Map<String, dynamic>))
               .toList() ??
           [],
+      reportedBy: List<String>.from(json['reportedBy'] ?? []),
     );
   }
 
@@ -46,6 +49,7 @@ class CommentModel {
       'creatorAvatarUrl': creatorAvatarUrl,
       'createdAt': createdAt,
       'replies': replies.map((reply) => reply.toJson()).toList(),
+      'reportedBy': reportedBy,
     };
   }
 
@@ -58,6 +62,7 @@ class CommentModel {
     String? creatorAvatarUrl,
     int? createdAt,
     List<CommentModel>? replies,
+    List<String>? reportedBy,
   }) {
     return CommentModel(
       id: id ?? this.id,
@@ -68,6 +73,7 @@ class CommentModel {
       creatorAvatarUrl: creatorAvatarUrl ?? this.creatorAvatarUrl,
       createdAt: createdAt ?? this.createdAt,
       replies: replies ?? this.replies,
+      reportedBy: reportedBy ?? this.reportedBy,
     );
   }
 }

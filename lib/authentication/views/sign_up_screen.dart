@@ -48,7 +48,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text("🌿내방에 자연🌿"),
+          title: const Text("내방에 자연"),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(

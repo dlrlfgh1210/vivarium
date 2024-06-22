@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vivarium/post/models/post_model.dart';
 
 class PostRepository {
@@ -96,6 +96,28 @@ class PostRepository {
       final data = doc.data();
       return PostModel.fromJson(data).copyWith(id: doc.id);
     }).toList();
+  }
+
+  Future<void> reportPost(String postId, String userId) async {
+    final docRef = _db.collection('posts').doc(postId);
+    await docRef.update({
+      'reportedBy': FieldValue.arrayUnion([userId])
+    });
+  }
+
+  Future<List<PostModel>> getFilteredPosts(String userId) async {
+    final querySnapshot = await _db
+        .collection("posts")
+        .orderBy("createdAt", descending: true)
+        .get();
+    return querySnapshot.docs
+        .map((doc) {
+          final data = doc.data();
+          final post = PostModel.fromJson(data).copyWith(id: doc.id);
+          return post;
+        })
+        .where((post) => !post.reportedBy.contains(userId))
+        .toList();
   }
 }
 

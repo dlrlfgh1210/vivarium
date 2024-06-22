@@ -38,6 +38,13 @@ class CommentRepository {
       return [];
     }
   }
+
+  Future<void> reportComment(String commentId, String userId) async {
+    final docRef = _db.collection('comments').doc(commentId);
+    await docRef.update({
+      'reportedBy': FieldValue.arrayUnion([userId])
+    });
+  }
 }
 
 final commentRepoProvider = Provider((ref) => CommentRepository());

@@ -1,19 +1,36 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/post/models/comment_model.dart';
 import 'package:vivarium/post/repos/comment_repo.dart';
 
 class CommentViewModel extends StateNotifier<AsyncValue<List<CommentModel>>> {
   final String postId;
   final CommentRepository _repository;
+  final Ref ref;
 
-  CommentViewModel(this.postId, this._repository)
+  CommentViewModel(this.postId, this._repository, this.ref)
       : super(const AsyncValue.loading()) {
     loadComments();
   }
 
   Future<void> loadComments() async {
-    List<CommentModel> comments = await _repository.getComments(postId);
-    state = AsyncValue.data(comments);
+    final currentUser = ref.read(authRepository).user;
+    final comments = await _repository.getComments(postId);
+    if (currentUser != null) {
+      state = AsyncValue.data(comments
+          .where((comment) => !comment.reportedBy.contains(currentUser.uid))
+          .toList());
+    } else {
+      state = AsyncValue.data(comments);
+    }
+  }
+
+  Future<void> reportComment(String commentId) async {
+    final currentUser = ref.read(authRepository).user;
+    if (currentUser == null) return;
+
+    await _repository.reportComment(commentId, currentUser.uid);
+    loadComments();
   }
 
   Future<void> addComment(CommentModel comment) async {
@@ -35,7 +52,7 @@ final commentProvider = StateNotifierProvider.family<CommentViewModel,
     AsyncValue<List<CommentModel>>, String>(
   (ref, postId) {
     final repository = ref.read(commentRepoProvider);
-    return CommentViewModel(postId, repository);
+    return CommentViewModel(postId, repository, ref);
   },
 );
 

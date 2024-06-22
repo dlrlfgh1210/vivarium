@@ -50,7 +50,7 @@ class _LogInScreenState extends ConsumerState<LogInScreen> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text(
-            "🌿내방에 자연🌿",
+            "내방에 자연",
             style: TextStyle(fontSize: 25, color: Colors.black),
           ),
         ),
