@@ -18,6 +18,12 @@ class CommentViewModel extends StateNotifier<AsyncValue<List<CommentModel>>> {
     final comments = await _repository.getComments(postId);
     if (currentUser != null) {
       state = AsyncValue.data(comments
+          .map((comment) {
+            final filteredReplies = comment.replies
+                .where((reply) => !reply.reportedBy.contains(currentUser.uid))
+                .toList();
+            return comment.copyWith(replies: filteredReplies);
+          })
           .where((comment) => !comment.reportedBy.contains(currentUser.uid))
           .toList());
     } else {
@@ -33,6 +39,14 @@ class CommentViewModel extends StateNotifier<AsyncValue<List<CommentModel>>> {
     loadComments();
   }
 
+  Future<void> reportReply(String commentId, int replyCreatedAt) async {
+    final currentUser = ref.read(authRepository).user;
+    if (currentUser == null) return;
+
+    await _repository.reportReply(commentId, replyCreatedAt, currentUser.uid);
+    loadComments();
+  }
+
   Future<void> addComment(CommentModel comment) async {
     await _repository.addComment(comment);
     state.whenData(
@@ -41,6 +55,7 @@ class CommentViewModel extends StateNotifier<AsyncValue<List<CommentModel>>> {
 
   Future<void> addReply(String commentId, CommentModel reply) async {
     await _repository.addReply(commentId, reply);
+    loadComments();
   }
 
   Future<List<CommentModel>> getReplies(String commentId) async {

@@ -45,6 +45,32 @@ class CommentRepository {
       'reportedBy': FieldValue.arrayUnion([userId])
     });
   }
+
+  Future<void> reportReply(
+      String commentId, int replyCreatedAt, String userId) async {
+    final docRef = _db.collection('comments').doc(commentId);
+    final docSnapshot = await docRef.get();
+    final data = docSnapshot.data();
+    if (data != null && data['replies'] != null) {
+      final List<dynamic> updatedReplies =
+          (data['replies'] as List<dynamic>).map((reply) {
+        if (reply['createdAt'] == replyCreatedAt) {
+          final List<String> reportedBy =
+              List<String>.from(reply['reportedBy'] ?? []);
+          if (!reportedBy.contains(userId)) {
+            reportedBy.add(userId);
+          }
+          return {
+            ...reply,
+            'reportedBy': reportedBy,
+          };
+        } else {
+          return reply;
+        }
+      }).toList();
+      await docRef.update({'replies': updatedReplies});
+    }
+  }
 }
 
 final commentRepoProvider = Provider((ref) => CommentRepository());

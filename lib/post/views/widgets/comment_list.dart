@@ -84,7 +84,7 @@ class _CommentListState extends ConsumerState<CommentList> {
     });
   }
 
-  void _addReply() {
+  void _addReply() async {
     if (_replyController.text.isEmpty) return;
 
     final currentUser = ref.read(authRepository).user;
@@ -101,11 +101,12 @@ class _CommentListState extends ConsumerState<CommentList> {
       createdAt: DateTime.now().millisecondsSinceEpoch,
     );
 
-    _commentViewModel.addReply(widget.comment.id, newReply);
+    await _commentViewModel.addReply(widget.comment.id, newReply);
 
     setState(() {
       _replyController.clear();
       _isReplying = false;
+      widget.comment.replies.add(newReply); // 상태를 즉시 업데이트
     });
     ref.read(bottomSheetVisibleProvider.notifier).state = true;
   }
@@ -114,7 +115,11 @@ class _CommentListState extends ConsumerState<CommentList> {
     _commentViewModel.reportComment(widget.comment.id);
   }
 
-  void _showReportBottomSheet() {
+  void _reportReply(int replyCreatedAt) {
+    _commentViewModel.reportReply(widget.comment.id, replyCreatedAt);
+  }
+
+  void _showReportBottomSheet({int? replyCreatedAt}) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -157,7 +162,11 @@ class _CommentListState extends ConsumerState<CommentList> {
                       ),
                       TextButton(
                         onPressed: () {
-                          _reportComment();
+                          if (replyCreatedAt != null) {
+                            _reportReply(replyCreatedAt);
+                          } else {
+                            _reportComment();
+                          }
                           Navigator.of(context).pop();
                         },
                         child: const Text('신고하기'),
@@ -234,7 +243,7 @@ class _CommentListState extends ConsumerState<CommentList> {
               FontAwesomeIcons.ellipsis,
               size: 20,
             ),
-            onPressed: _showReportBottomSheet,
+            onPressed: () => _showReportBottomSheet(),
           ),
         ),
         if (_isReplying)
@@ -279,12 +288,71 @@ class _CommentListState extends ConsumerState<CommentList> {
         ),
         if (_showReplies && widget.comment.replies.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(left: 40.0),
+            padding: const EdgeInsets.only(left: 30.0),
             child: Column(
               children: widget.comment.replies.map((reply) {
-                return CommentList(
-                  comment: reply,
-                  currentUserEmail: widget.currentUserEmail,
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 18,
+                    child: ClipOval(
+                      child: Image.network(
+                        reply.creatorAvatarUrl.isNotEmpty
+                            ? reply.creatorAvatarUrl
+                            : "null",
+                        fit: BoxFit.cover,
+                        width: 36,
+                        height: 36,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.network(
+                            "https://firebasestorage.googleapis.com/v0/b/vivarium-soocho.appspot.com/o/avatars%2Fdefault_avatar.png?alt=media",
+                            fit: BoxFit.cover,
+                            width: 36,
+                            height: 36,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  title: Row(
+                    children: [
+                      Text(
+                        reply.creatorEmail.split('@')[0],
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Icon(
+                        Icons.circle,
+                        size: 5,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(_getFormattedTime(),
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          )),
+                    ],
+                  ),
+                  subtitle: Text(
+                    reply.content,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  trailing: IconButton(
+                    icon: const FaIcon(
+                      FontAwesomeIcons.ellipsis,
+                      size: 20,
+                    ),
+                    onPressed: () =>
+                        _showReportBottomSheet(replyCreatedAt: reply.createdAt),
+                  ),
                 );
               }).toList(),
             ),
