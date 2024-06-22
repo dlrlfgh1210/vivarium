@@ -47,10 +47,11 @@ class _CommentListState extends ConsumerState<CommentList> {
     _selectedReasons = {for (var reason in _reportReasons) reason: false};
   }
 
-  String _getFormattedTime() {
+  String _getFormattedTime(int createdAt) {
     final DateTime now = DateTime.now();
     final DateTime commentDateTime =
-        DateTime.fromMillisecondsSinceEpoch(widget.comment.createdAt);
+        DateTime.fromMillisecondsSinceEpoch(createdAt);
+
     final Duration difference = now.difference(commentDateTime);
 
     if (difference.inMinutes < 1) {
@@ -161,14 +162,16 @@ class _CommentListState extends ConsumerState<CommentList> {
                         child: const Text('취소'),
                       ),
                       TextButton(
-                        onPressed: () {
-                          if (replyCreatedAt != null) {
-                            _reportReply(replyCreatedAt);
-                          } else {
-                            _reportComment();
-                          }
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: _selectedReasons.containsValue(true)
+                            ? () {
+                                if (replyCreatedAt != null) {
+                                  _reportReply(replyCreatedAt);
+                                } else {
+                                  _reportComment();
+                                }
+                                Navigator.of(context).pop();
+                              }
+                            : null,
                         child: const Text('신고하기'),
                       ),
                     ],
@@ -223,7 +226,7 @@ class _CommentListState extends ConsumerState<CommentList> {
               const SizedBox(
                 width: 5,
               ),
-              Text(_getFormattedTime(),
+              Text(_getFormattedTime(widget.comment.createdAt),
                   style: TextStyle(
                     color: Colors.grey.shade700,
                     fontSize: 15,
@@ -330,12 +333,14 @@ class _CommentListState extends ConsumerState<CommentList> {
                       const SizedBox(
                         width: 5,
                       ),
-                      Text(_getFormattedTime(),
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          )),
+                      Text(
+                        _getFormattedTime(reply.createdAt),
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                   subtitle: Text(

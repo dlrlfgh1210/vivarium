@@ -32,7 +32,13 @@ class _HomeContainerState extends ConsumerState<HomeContainer> {
   @override
   void initState() {
     super.initState();
-    _reportReasons = ['광고', '폭언/욕설/혐오 발언', '불법성 정보', '음란성 정보', '개인정보 노출'];
+    _reportReasons = [
+      '광고',
+      '폭언/욕설/혐오 발언',
+      '불법성 정보',
+      '음란성 정보',
+      '개인정보 노출',
+    ];
     _selectedReasons = {for (var reason in _reportReasons) reason: false};
   }
 
@@ -73,17 +79,19 @@ class _HomeContainerState extends ConsumerState<HomeContainer> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // 모달 닫기
+                          Navigator.of(context).pop();
                         },
                         child: const Text('취소'),
                       ),
                       TextButton(
-                        onPressed: () {
-                          ref
-                              .read(postProvider.notifier)
-                              .reportPost(widget.postId);
-                          Navigator.of(context).pop(); // 모달 닫기
-                        },
+                        onPressed: _selectedReasons.containsValue(true)
+                            ? () {
+                                ref
+                                    .read(postProvider.notifier)
+                                    .reportPost(widget.postId);
+                                Navigator.of(context).pop();
+                              }
+                            : null,
                         child: const Text('신고하기'),
                       ),
                     ],
