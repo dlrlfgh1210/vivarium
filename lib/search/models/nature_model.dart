@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Nature {
+class NatureModel {
   final String id;
   final String title;
   final String description;
   final String imageUrl;
   final String category;
 
-  Nature({
+  NatureModel({
     required this.id,
     required this.title,
     required this.description,
@@ -15,9 +15,9 @@ class Nature {
     required this.category,
   });
 
-  factory Nature.fromFirestore(DocumentSnapshot doc) {
+  factory NatureModel.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map<String, dynamic>;
-    return Nature(
+    return NatureModel(
       id: doc.id,
       title: data['title'] ?? '',
       description: data['description'] ?? '',

@@ -3,11 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vivarium/search/models/nature_model.dart';
 
 final natureProvider =
-    StateNotifierProvider<NatureNotifier, List<Nature>>((ref) {
+    StateNotifierProvider<NatureNotifier, List<NatureModel>>((ref) {
   return NatureNotifier();
 });
 
-class NatureNotifier extends StateNotifier<List<Nature>> {
+class NatureNotifier extends StateNotifier<List<NatureModel>> {
   NatureNotifier() : super([]);
 
   Future<void> fetchNatures(String category) async {
@@ -18,7 +18,8 @@ class NatureNotifier extends StateNotifier<List<Nature>> {
           .collection(category)
           .where('category', isEqualTo: category)
           .get();
-      state = snapshot.docs.map((doc) => Nature.fromFirestore(doc)).toList();
+      state =
+          snapshot.docs.map((doc) => NatureModel.fromFirestore(doc)).toList();
     } catch (e) {
       state = [];
     }

@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivarium/search/models/nature_model.dart';
 
 class SearchDetailScreen extends StatefulWidget {
-  final Nature nature;
+  final NatureModel nature;
 
   const SearchDetailScreen({
     super.key,
@@ -22,13 +22,10 @@ class _SearchDetailScreenState extends State<SearchDetailScreen> {
   Future initFavorites() async {
     favorites = await SharedPreferences.getInstance();
     final likedNatures = favorites.getStringList('likedNatures');
-    if (likedNatures != null &&
-        likedNatures.contains(widget.nature.id.toString())) {
+    if (likedNatures != null && likedNatures.contains(widget.nature.title)) {
       setState(() {
         isLiked = true;
       });
-    } else {
-      await favorites.setStringList('likedNatures', []);
     }
   }
 
@@ -43,14 +40,23 @@ class _SearchDetailScreenState extends State<SearchDetailScreen> {
     if (likedNatures != null) {
       setState(() {
         if (isLiked) {
-          likedNatures.remove(widget.nature.id.toString());
+          likedNatures.remove(widget.nature.title);
         } else {
-          likedNatures.add(widget.nature.id.toString());
+          likedNatures.add(widget.nature.title);
         }
         isLiked = !isLiked;
       });
       await favorites.setStringList('likedNatures', likedNatures);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _onBackButtonPressed() {
+    Navigator.pop(context, isLiked);
   }
 
   @override
@@ -61,10 +67,14 @@ class _SearchDetailScreenState extends State<SearchDetailScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         iconTheme: const IconThemeData(
-          color: Colors.white,
+          color: Colors.grey,
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _onBackButtonPressed,
+        ),
         actions: [
           IconButton(
             onPressed: onHeartTap,
@@ -122,14 +132,12 @@ class _SearchDetailScreenState extends State<SearchDetailScreen> {
               strokeWidth: 1,
               dashPattern: const [8, 4],
               radius: const Radius.circular(12),
-              child: Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    nature.description,
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  nature.description,
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
                 ),
               ),

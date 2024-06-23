@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vivarium/search/models/nature_model_provider.dart';
-import 'package:vivarium/search/views/search_detail_screen.dart';
+import 'package:vivarium/search/view_models/search_view_model.dart';
+import 'package:vivarium/search/views/widget/category_grid_view.dart';
 
 final categories = [
   "물고기",
@@ -13,25 +13,27 @@ final categories = [
   "기타용품",
 ];
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   static const routeName = "Search";
   static const routeURL = "/Search";
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   late SharedPreferences favorites;
-  Set<int> likedNatures = {};
+  Set<String> likedNatures = {};
+  late TextEditingController _controller;
+  String selectedCategory = categories[0];
 
   Future initFavorites() async {
     favorites = await SharedPreferences.getInstance();
     final likedNaturesList = favorites.getStringList('likedNatures');
     if (likedNaturesList != null) {
       setState(() {
-        likedNatures = likedNaturesList.map((id) => int.parse(id)).toSet();
+        likedNatures = likedNaturesList.toSet();
       });
     } else {
       await favorites.setStringList('likedNatures', []);
@@ -42,19 +44,34 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     initFavorites();
+    _controller = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(searchViewModelProvider.notifier).fetchNatures(selectedCategory);
+    });
   }
 
-  void onHeartTap(int natureId) async {
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void onHeartTap(String natureTitle) async {
     setState(() {
-      if (likedNatures.contains(natureId)) {
-        likedNatures.remove(natureId);
+      if (likedNatures.contains(natureTitle)) {
+        likedNatures.remove(natureTitle);
       } else {
-        likedNatures.add(natureId);
+        likedNatures.add(natureTitle);
       }
     });
 
-    await favorites.setStringList(
-        'likedNatures', likedNatures.map((id) => id.toString()).toList());
+    await favorites.setStringList('likedNatures', likedNatures.toList());
+  }
+
+  void _onSearchChanged(String query) {
+    ref
+        .read(searchViewModelProvider.notifier)
+        .searchPosts(selectedCategory, query);
   }
 
   @override
@@ -69,7 +86,10 @@ class _SearchScreenState extends State<SearchScreen> {
             constraints: const BoxConstraints(
               maxWidth: 300,
             ),
-            child: const CupertinoSearchTextField(),
+            child: CupertinoSearchTextField(
+              onChanged: _onSearchChanged,
+              controller: _controller,
+            ),
           ),
           bottom: TabBar(
             tabAlignment: TabAlignment.center,
@@ -85,107 +105,38 @@ class _SearchScreenState extends State<SearchScreen> {
                   text: category,
                 )
             ],
+            onTap: (index) {
+              setState(() {
+                selectedCategory = categories[index];
+                _controller.clear();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ref
+                      .read(searchViewModelProvider.notifier)
+                      .fetchNatures(selectedCategory);
+                });
+              });
+            },
           ),
         ),
-        body: TabBarView(
-          children: [
-            for (var category in categories)
-              CategoryGridView(
-                category: category,
-                likedNatures: likedNatures,
-                onHeartTap: onHeartTap,
-              ),
-          ],
+        body: Consumer(
+          builder: (context, ref, child) {
+            final searchState = ref.watch(searchViewModelProvider);
+            return searchState.when(
+              data: (natures) => natures.isEmpty
+                  ? const Center(child: Text("검색 결과가 없습니다."))
+                  : CategoryGridView(
+                      category: selectedCategory,
+                      likedNatures: likedNatures,
+                      onHeartTap: onHeartTap,
+                      onRefresh: initFavorites,
+                      natures: natures,
+                    ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, stack) => const Center(child: Text("오류가 발생했습니다.")),
+            );
+          },
         ),
       ),
     );
-  }
-}
-
-class CategoryGridView extends ConsumerWidget {
-  final String category;
-  final Set<int> likedNatures;
-  final Function(int) onHeartTap;
-
-  const CategoryGridView({
-    super.key,
-    required this.category,
-    required this.likedNatures,
-    required this.onHeartTap,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(natureProvider.notifier).fetchNatures(category);
-    final natures = ref.watch(natureProvider);
-
-    if (natures.isEmpty) {
-      return const Center(child: Text("데이터가 없습니다."));
-    } else {
-      return GridView.builder(
-        itemCount: natures.length,
-        padding: const EdgeInsets.all(5),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 6,
-          childAspectRatio: 9 / 19,
-        ),
-        itemBuilder: (context, index) {
-          var natural = natures[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SearchDetailScreen(
-                    nature: natural,
-                  ),
-                ),
-              );
-            },
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: AspectRatio(
-                        aspectRatio: 9 / 15,
-                        child: Image.network(
-                          natural.imageUrl,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => onHeartTap(index),
-                      icon: Icon(
-                        likedNatures.contains(index)
-                            ? Icons.favorite
-                            : Icons.favorite_outline,
-                      ),
-                      iconSize: 35,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-                Text(
-                  natural.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    overflow: TextOverflow.ellipsis,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
   }
 }
