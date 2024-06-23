@@ -321,7 +321,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                     children: [
                       Text(
                         reply.creatorEmail.split('@')[0],
-                        style: const TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: 12),
                       ),
                       const SizedBox(
                         width: 5,
@@ -337,7 +337,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                         _getFormattedTime(reply.createdAt),
                         style: TextStyle(
                           color: Colors.grey.shade700,
-                          fontSize: 15,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vivarium/home/views/home_screen.dart';
-import 'package:vivarium/more_screen.dart';
+import 'package:vivarium/calculator/views/calculator_screen.dart';
 import 'package:vivarium/navigation/nav_tab.dart';
 import 'package:vivarium/search/views/search_screen.dart';
 import 'package:vivarium/users/views/users_profile_screen.dart';
@@ -25,7 +25,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     "home",
     "search",
     "my",
-    "more",
+    "calculator",
   ];
   late int _selectedIndex = _tabs.indexOf(widget.tab);
 
@@ -55,7 +55,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           Offstage(
             offstage: _selectedIndex != 3,
-            child: const MoreScreen(),
+            child: const CalculatorScreen(),
           ),
         ],
       ),
@@ -90,10 +90,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   onTap: () => _onTap(2),
                 ),
                 NavTab(
-                  text: "전체",
+                  text: "계산",
                   isSelected: _selectedIndex == 3,
-                  icon: FontAwesomeIcons.bars,
-                  selectedIcon: FontAwesomeIcons.bars,
+                  icon: FontAwesomeIcons.calculator,
+                  selectedIcon: FontAwesomeIcons.calculator,
                   onTap: () => _onTap(3),
                 ),
               ],

@@ -4,7 +4,7 @@ import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/authentication/views/log_in_screen.dart';
 import 'package:vivarium/authentication/views/sign_up_screen.dart';
 import 'package:vivarium/home/views/home_screen.dart';
-import 'package:vivarium/more_screen.dart';
+import 'package:vivarium/calculator/views/calculator_screen.dart';
 import 'package:vivarium/navigation/main_navigation_screen.dart';
 import 'package:vivarium/post/views/post_screen.dart';
 import 'package:vivarium/search/views/search_screen.dart';
@@ -36,7 +36,7 @@ final routerProvider = Provider((ref) {
         builder: (context, state) => const SignUpScreen(),
       ),
       GoRoute(
-        path: "/:tab(home|search|my|more)",
+        path: "/:tab(home|search|my|calculator)",
         name: MainNavigationScreen.routeName,
         builder: (context, state) {
           final tab = state.pathParameters["tab"]!;
@@ -59,9 +59,9 @@ final routerProvider = Provider((ref) {
         builder: (context, state) => const UserProfileSCreen(),
       ),
       GoRoute(
-        path: MoreScreen.routeURL,
-        name: MoreScreen.routeName,
-        builder: (context, state) => const MoreScreen(),
+        path: CalculatorScreen.routeURL,
+        name: CalculatorScreen.routeName,
+        builder: (context, state) => const CalculatorScreen(),
       ),
       GoRoute(
         path: PostScreen.routeURL,

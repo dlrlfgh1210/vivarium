@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/authentication/views/log_in_screen.dart';
 import 'package:vivarium/users/views/widgets/avatar.dart';
-import 'package:vivarium/users/views/widgets/button.dart';
 import 'package:vivarium/users/views/widgets/persistent_tab_bar.dart';
 import 'package:vivarium/users/view_models/users_view_model.dart';
 
@@ -116,12 +115,6 @@ class UserProfileSCreenState extends ConsumerState<UserProfileSCreen> {
                               ),
                               const SizedBox(
                                 height: 24,
-                              ),
-                              const FractionallySizedBox(
-                                widthFactor: 1,
-                                child: Button(
-                                  text: "프로필 편집",
-                                ),
                               ),
                             ],
                           ),
