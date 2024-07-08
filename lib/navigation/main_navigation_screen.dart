@@ -3,7 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vivarium/home/views/home_screen.dart';
 import 'package:vivarium/calculator/views/calculator_screen.dart';
-import 'package:vivarium/navigation/nav_tab.dart';
+import 'package:vivarium/navigation/widgets/nav_tab.dart';
+import 'package:vivarium/navigation/widgets/post_button.dart';
+import 'package:vivarium/post/views/post_screen.dart';
 import 'package:vivarium/search/views/search_screen.dart';
 import 'package:vivarium/users/views/users_profile_screen.dart';
 
@@ -24,6 +26,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<String> _tabs = [
     "home",
     "search",
+    "xxxx",
     "my",
     "calculator",
   ];
@@ -34,6 +37,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _onPostButtonTap() {
+    context.pushNamed(PostScreen.routeName);
   }
 
   @override
@@ -50,11 +57,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             child: const SearchScreen(),
           ),
           Offstage(
-            offstage: _selectedIndex != 2,
+            offstage: _selectedIndex != 3,
             child: const UserProfileSCreen(),
           ),
           Offstage(
-            offstage: _selectedIndex != 3,
+            offstage: _selectedIndex != 4,
             child: const CalculatorScreen(),
           ),
         ],
@@ -82,19 +89,23 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   selectedIcon: FontAwesomeIcons.magnifyingGlass,
                   onTap: () => _onTap(1),
                 ),
+                GestureDetector(
+                  onTap: _onPostButtonTap,
+                  child: PostButton(inverted: _selectedIndex != 0),
+                ),
                 NavTab(
                   text: "MY",
-                  isSelected: _selectedIndex == 2,
+                  isSelected: _selectedIndex == 3,
                   icon: FontAwesomeIcons.solidUser,
                   selectedIcon: FontAwesomeIcons.solidUser,
-                  onTap: () => _onTap(2),
+                  onTap: () => _onTap(3),
                 ),
                 NavTab(
                   text: "계산",
-                  isSelected: _selectedIndex == 3,
+                  isSelected: _selectedIndex == 4,
                   icon: FontAwesomeIcons.calculator,
                   selectedIcon: FontAwesomeIcons.calculator,
-                  onTap: () => _onTap(3),
+                  onTap: () => _onTap(4),
                 ),
               ],
             ),

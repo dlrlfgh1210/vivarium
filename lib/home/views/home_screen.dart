@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vivarium/authentication/repos/authentication_repo.dart';
 import 'package:vivarium/home/views/home_container.dart';
@@ -11,7 +10,6 @@ import 'package:vivarium/post/view_models/delete_post_view_model.dart';
 import 'package:vivarium/post/view_models/post_view_model.dart';
 import 'package:vivarium/post/view_models/update_post_view_model.dart';
 import 'package:vivarium/post/views/post_detail_screen.dart';
-import 'package:vivarium/post/views/post_screen.dart';
 import 'package:vivarium/post/views/update_post_screen.dart';
 import 'package:vivarium/users/models/user_profile_model.dart';
 import 'package:vivarium/users/view_models/users_view_model.dart';
@@ -181,13 +179,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ),
-                ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => context.pushNamed(PostScreen.routeName),
-                elevation: 0,
-                child: const FaIcon(
-                  FontAwesomeIcons.plus,
                 ),
               ),
               body: RefreshIndicator(
